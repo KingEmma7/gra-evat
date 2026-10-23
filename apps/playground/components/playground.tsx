@@ -27,7 +27,7 @@ import {
   type Draft,
   type DraftLine,
 } from '../lib/draft';
-import { Icon } from './icon';
+import { ApiReference } from './api-reference';
 import { CopyButton } from './copy-button';
 
 type Totals = ReturnType<typeof calculateInvoice>;
@@ -105,8 +105,8 @@ export function Playground() {
   const [refundQuantities, setRefundQuantities] = useState<Record<string, string>>({});
   const [refunds, setRefunds] = useState<Refund[]>([]);
   const [refundStatus, setRefundStatus] = useState('');
-  const [dataTab, setDataTab] = useState<'request' | 'response' | 'sdk'>('request');
   const [qr, setQr] = useState('');
+  const [qrError, setQrError] = useState(false);
   const [identityWarning, setIdentityWarning] = useState('');
   const identities = useRef(new Map<string, string>());
   const browserFetch = useMemo(() => createMockFetch(), []);
@@ -172,17 +172,21 @@ export function Playground() {
 
   useEffect(() => {
     let active = true;
+    setQrError(false);
     if (issued?.result.response.qr_code) {
       void QRCode.toDataURL(issued.result.response.qr_code, {
         width: 192,
         margin: 2,
-        color: { dark: '#102f24', light: '#ffffff' },
+        color: { dark: '#111111', light: '#FAFAF9' },
       })
         .then((data) => {
           if (active) setQr(data);
         })
         .catch(() => {
-          if (active) setQr('');
+          if (active) {
+            setQr('');
+            setQrError(true);
+          }
         });
     } else setQr('');
     return () => {
@@ -281,7 +285,6 @@ export function Playground() {
       setRefunds([]);
       setRefundStatus('');
       setRefundOpen(false);
-      setDataTab('response');
       setTimeout(() => receiptRef.current?.focus(), 50);
     } catch (problem) {
       report(problem);
@@ -388,140 +391,112 @@ export function Playground() {
     }
   }
   const describedBy = error ? 'builder-help builder-error' : 'builder-help';
-  const selectedCode =
-    dataTab === 'request' ? requestJson : dataTab === 'response' ? responseJson : snippet;
-
   return (
     <>
-      <a className="skip-link" href="#builder">
-        Skip to invoice builder
+      <a className="skip-link" href="#quickstart">
+        Skip to content
       </a>
-      <header className="site-header">
-        <div className="shell header-inner">
-          <a className="wordmark" href="#" aria-label="gra-evat home">
-            <span className="brand-mark" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-              <i />
-            </span>
-            gra<span className="wordmark-divider">/</span>evat
-            <span className="open-source-tag">OPEN SOURCE</span>
-          </a>
-          <nav aria-label="Main navigation">
-            <a href="#builder" className="nav-active">
-              Playground
-            </a>
-            <a href="#integration">Integration</a>
-            <a
-              href="https://documenter.getpostman.com/view/29809098/2sBXVeGCzK"
-              target="_blank"
-              rel="noreferrer"
-            >
-              GRA API docs <Icon name="external" size={13} />
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-          </nav>
-          <span className="api-version">
-            API v8.2 <span>·</span> 2026 rules
-          </span>
-        </div>
-      </header>
-      <main className="shell">
-        <section className="hero" aria-labelledby="hero-title">
-          <div>
-            <div className="eyebrow">
-              <span className="tiny-star" aria-hidden="true">
-                ✳
-              </span>{' '}
-              THE INVOICE LAB <span className="eyebrow-line" />
-            </div>
-            <h1 id="hero-title">
-              Your first E-VAT invoice.
-              <br />
-              <span>Without the wait.</span>
-            </h1>
-            <p>
-              Build an invoice. See every levy. Get a mock receipt.
-              <br className="desktop-break" /> A small, open toolkit for developers building in
-              Ghana.
-            </p>
-          </div>
-          <aside className="hero-note">
-            <div className="ghana-stripe" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-            </div>
-            <span className="mono micro">MADE FOR THE BUILD</span>
-            <p>
-              From your first line item
-              <br />
-              to your first integration.
-            </p>
-            <span className="hero-note-bottom">Typed SDK. Local mock. One playground.</span>
-          </aside>
-        </section>
-        <section
-          className={`environment ${mockStatus === 'down' ? 'environment-down' : ''}`}
-          aria-label="Mock environment"
-        >
-          <div className="environment-description">
-            <span className={`status-light ${mockStatus}`} aria-hidden="true" />
-            <div>
-              <strong>
-                {mockStatus === 'checking'
-                  ? 'Checking mock'
-                  : mockStatus === 'down'
-                    ? 'Local mock is unreachable'
-                    : mode === 'browser'
-                      ? 'In-browser mock is ready'
-                      : 'Local mock is connected'}
-              </strong>
-              <p>
-                {mode === 'browser'
-                  ? 'Runs entirely in this browser. No sandbox credentials needed.'
-                  : mockStatus === 'down'
-                    ? 'Start it with: pnpm --filter @gra-evat/mock start'
-                    : BASE_URL}
-              </p>
-            </div>
-          </div>
-          <label className="mode-select">
-            <span className="sr-only">Mock connection</span>
-            <select
-              aria-label="Mock connection"
-              value={mode}
-              disabled={pending}
-              onChange={(event) => {
-                setMode(event.target.value as Mode);
-                setIssued(null);
-                setRefunds([]);
-                setError('');
-              }}
-            >
-              <option value="browser">In-browser mock</option>
-              <option value="server">Local server</option>
-            </select>
-          </label>
-          <span className="mock-label">MOCK ONLY</span>
-        </section>
-        <div className="workspace-grid">
-          <form
-            id="builder"
-            noValidate
-            onSubmit={(event) => void submit(event)}
-            className="builder-column"
-            aria-busy={pending}
+      <aside className="manual-nav">
+        <a href="#quickstart" className="wordmark" aria-label="gra-evat home">
+          gra-evat
+        </a>
+        <p className="muted">Developer manual</p>
+        <nav aria-label="Main navigation">
+          <a href="#quickstart">Quickstart</a>
+          <a href="#builder">Invoice builder</a>
+          <a href="#receipt">Receipt and refunds</a>
+          <a href="#api-reference">API reference</a>
+          <a href="#integration">SDK integration</a>
+        </nav>
+        <div className="nav-footer">
+          <p>
+            API v8.2
+            <br />
+            Tax rules effective 1 January 2026
+          </p>
+          <a
+            href="https://documenter.getpostman.com/view/29809098/2sBXVeGCzK"
+            target="_blank"
+            rel="noreferrer"
           >
-            <div className="section-heading">
-              <div>
-                <span className="step-label">01 / COMPOSE</span>
-                <h2>Invoice builder</h2>
+            Official GRA API documentation<span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        </div>
+      </aside>
+      <main className="manual-main">
+        <div className="manual-content">
+          <section id="quickstart" className="manual-section" aria-labelledby="quickstart-title">
+            <h1 id="quickstart-title">gra-evat</h1>
+            <p>
+              TypeScript SDK, local mock server, and browser playground for the Ghana E-VAT API.
+            </p>
+            <h2>Quickstart</h2>
+            <p>
+              Use Node 20.19 or later and pnpm 9. From a checkout, install dependencies and start
+              both services.
+            </p>
+            <CodeBlock
+              title="Terminal"
+              label="Quickstart commands"
+              value={'pnpm install\npnpm dev'}
+              copyLabel="Copy commands"
+            />
+            <p>
+              The playground runs at <code>http://localhost:3000</code>. The mock runs at{' '}
+              <code>http://localhost:8787</code>.
+            </p>
+            <p>
+              <a href="#builder">Load a sample invoice</a>, inspect its taxes, and submit it to the
+              mock. The hosted playground works in your browser without a server.
+            </p>
+            <section className="environment" aria-label="Mock environment">
+              <div role="status">
+                <strong>
+                  {mockStatus === 'checking'
+                    ? 'Checking mock connection'
+                    : mockStatus === 'down'
+                      ? 'Local mock is unreachable'
+                      : mode === 'browser'
+                        ? 'In-browser mock is ready'
+                        : 'Local mock is connected'}
+                </strong>
+                <p>
+                  {mode === 'browser'
+                    ? 'Requests run locally in this browser. No credentials are needed.'
+                    : mockStatus === 'down'
+                      ? 'Start it with: pnpm --filter @gra-evat/mock start'
+                      : BASE_URL}
+                </p>
               </div>
+              <label>
+                Mock connection
+                <select
+                  aria-label="Mock connection"
+                  value={mode}
+                  disabled={pending}
+                  onChange={(event) => {
+                    setMode(event.target.value as Mode);
+                    setIssued(null);
+                    setRefunds([]);
+                    setError('');
+                  }}
+                >
+                  <option value="browser">In-browser mock</option>
+                  <option value="server">Local server</option>
+                </select>
+              </label>
+              <p className="muted">
+                All signatures and receipts produced here are fake. No real tax invoice is issued.
+              </p>
+            </section>
+          </section>
+
+          <section id="builder" className="manual-section" aria-labelledby="builder-title">
+            <div className="section-heading">
+              <h2 id="builder-title">Invoice builder</h2>
               <button
                 type="button"
-                className="button button-quiet"
+                className="button"
                 disabled={pending}
                 onClick={() => {
                   setDraft((current) => ({
@@ -532,317 +507,316 @@ export function Playground() {
                   setError('');
                 }}
               >
-                Load sample invoice <Icon name="arrow" size={16} />
+                Load sample invoice
               </button>
             </div>
-            <p id="builder-help" className="form-description">
-              Amounts are in Ghana cedis. Taxes use the rules effective 1 January 2026.
+            <p id="builder-help">
+              Enter amounts in Ghana cedis. Dates use Africa/Accra, UTC+0. The calculator applies
+              the rules effective 1 January 2026.
             </p>
-            <fieldset className="card form-card" disabled={pending}>
-              <legend className="sr-only">Business and invoice details</legend>
-              <div className="card-title">
-                <h3>Business details</h3>
-                <span className="muted-small">Your mock receipt identity</span>
-              </div>
-              <div className="field-grid business-grid">
-                <label>
-                  Business name
-                  <input
-                    value={draft.businessName}
-                    onChange={(event) => field('businessName', event.target.value)}
-                    aria-describedby={describedBy}
-                    maxLength={100}
-                    autoComplete="organization"
-                    required
-                  />
-                </label>
-                <label>
-                  Business TIN
-                  <input
-                    value={draft.businessTin}
-                    onChange={(event) => field('businessTin', event.target.value)}
-                    aria-describedby={describedBy}
-                    maxLength={15}
-                    spellCheck={false}
-                    className="mono"
-                    required
-                  />
-                </label>
-                <label>
-                  Branch
-                  <input
-                    value={draft.branch}
-                    onChange={(event) => field('branch', event.target.value)}
-                    aria-describedby={describedBy}
-                    className="mono"
-                    inputMode="numeric"
-                    maxLength={3}
-                    required
-                  />
-                </label>
-              </div>
-              <div className="field-grid thirds">
-                <label>
-                  Invoice number
-                  <input
-                    value={draft.invoiceNumber}
-                    onChange={(event) => field('invoiceNumber', event.target.value)}
-                    aria-describedby={describedBy}
-                    maxLength={100}
-                    className="mono"
-                    required
-                  />
-                </label>
-                <label>
-                  Transaction date
-                  <input
-                    type="date"
-                    value={draft.transactionDate}
-                    onChange={(event) => field('transactionDate', event.target.value)}
-                    aria-describedby={describedBy}
-                    required
-                  />
-                </label>
-                <label>
-                  Operator name
-                  <input
-                    value={draft.userName}
-                    onChange={(event) => field('userName', event.target.value)}
-                    aria-describedby={describedBy}
-                    maxLength={100}
-                    required
-                  />
-                </label>
-              </div>
-              <p className="field-note">
-                Business identity stays in the receipt view. The API identifies the issuer through
-                its credentials.
-              </p>
-              <div className="card-divider" />
-              <div className="card-title">
-                <h3>Customer</h3>
-                <span className="muted-small">Optional for a cash sale</span>
-              </div>
-              <div className="field-grid halves">
-                <label>
-                  Customer name
-                  <input
-                    value={draft.customerName}
-                    onChange={(event) => field('customerName', event.target.value)}
-                    aria-describedby={describedBy}
-                    maxLength={100}
-                    placeholder="Cash customer"
-                    autoComplete="name"
-                  />
-                </label>
-                <label>
-                  Customer TIN
-                  <input
-                    value={draft.customerTin}
-                    onChange={(event) => field('customerTin', event.target.value)}
-                    aria-describedby={describedBy}
-                    maxLength={15}
-                    placeholder="C0000000000"
-                    spellCheck={false}
-                    className="mono"
-                  />
-                </label>
-              </div>
-              <p className="field-note">
-                A blank customer uses the documented cash customer TIN, C0000000000.
-              </p>
-            </fieldset>
-            <fieldset className="card items-card" disabled={pending}>
-              <legend className="sr-only">Line items and pricing</legend>
-              <div className="card-title">
-                <h3>
-                  Line items{' '}
-                  <span className="count-badge">
-                    {draft.items.length.toString().padStart(2, '0')}
-                  </span>
-                </h3>
-                <span className="currency-badge">GHS</span>
-              </div>
-              {!draft.items.length ? (
-                <div className="empty-items">
-                  <span className="empty-icon" aria-hidden="true">
-                    <Icon name="plus" size={26} />
-                  </span>
-                  <h4>A good invoice starts with one item.</h4>
-                  <p>
-                    Add what you sold, or load our sample to see
-                    <br className="desktop-break" /> the complete flow in a few clicks.
-                  </p>
-                  <button
-                    type="button"
-                    className="button button-outlined"
-                    onClick={() => field('items', [newLine(1)])}
-                  >
-                    <Icon name="plus" size={16} />
-                    Add first item
-                  </button>
+            <form noValidate onSubmit={(event) => void submit(event)} aria-busy={pending}>
+              <fieldset className="form-group" disabled={pending}>
+                <legend>Business details</legend>
+                <div className="field-grid halves">
+                  <label className="full-width">
+                    Business name
+                    <input
+                      value={draft.businessName}
+                      onChange={(event) => field('businessName', event.target.value)}
+                      aria-describedby={describedBy}
+                      maxLength={100}
+                      autoComplete="organization"
+                      required
+                    />
+                  </label>
+                  <label>
+                    Business TIN
+                    <input
+                      value={draft.businessTin}
+                      onChange={(event) => field('businessTin', event.target.value)}
+                      aria-describedby={describedBy}
+                      maxLength={15}
+                      spellCheck={false}
+                      className="mono"
+                      required
+                    />
+                  </label>
+                  <label>
+                    Branch
+                    <input
+                      value={draft.branch}
+                      onChange={(event) => field('branch', event.target.value)}
+                      aria-describedby={describedBy}
+                      className="mono"
+                      inputMode="numeric"
+                      maxLength={3}
+                      required
+                    />
+                  </label>
                 </div>
-              ) : (
-                <div className="line-items">
-                  {draft.items.map((item, index) => (
-                    <div className="line-item" key={item.id}>
-                      <div className="line-item-top">
-                        <span className="line-number">
-                          ITEM {String(index + 1).padStart(2, '0')}
-                        </span>
-                        <div className="line-actions">
-                          <button
-                            type="button"
-                            className="icon-button"
-                            aria-label={`Move item ${index + 1} up`}
-                            disabled={index === 0}
-                            onClick={() => moveLine(index, -1)}
-                          >
-                            <Icon name="up" size={15} />
-                          </button>
-                          <button
-                            type="button"
-                            className="icon-button"
-                            aria-label={`Move item ${index + 1} down`}
-                            disabled={index === draft.items.length - 1}
-                            onClick={() => moveLine(index, 1)}
-                          >
-                            <Icon name="down" size={15} />
-                          </button>
-                          <button
-                            type="button"
-                            className="icon-button delete-button"
-                            aria-label={`Remove item ${index + 1}`}
-                            onClick={() =>
-                              field(
-                                'items',
-                                draft.items.filter((line) => line.id !== item.id),
-                              )
-                            }
-                          >
-                            <Icon name="trash" size={15} />
-                          </button>
+                <p className="field-note">
+                  Business name, TIN, and branch appear on this mock receipt only. GRA identifies
+                  the issuer through its credentials.
+                </p>
+                <div className="field-grid halves">
+                  <label>
+                    Invoice number
+                    <input
+                      value={draft.invoiceNumber}
+                      onChange={(event) => field('invoiceNumber', event.target.value)}
+                      aria-describedby={describedBy}
+                      maxLength={100}
+                      className="mono"
+                      required
+                    />
+                  </label>
+                  <label>
+                    Transaction date
+                    <input
+                      type="date"
+                      value={draft.transactionDate}
+                      onChange={(event) => field('transactionDate', event.target.value)}
+                      aria-describedby={describedBy}
+                      required
+                    />
+                  </label>
+                  <label className="full-width">
+                    Operator name
+                    <input
+                      value={draft.userName}
+                      onChange={(event) => field('userName', event.target.value)}
+                      aria-describedby={describedBy}
+                      maxLength={100}
+                      required
+                    />
+                  </label>
+                </div>
+              </fieldset>
+              <fieldset className="form-group" disabled={pending}>
+                <legend>Customer</legend>
+                <div className="field-grid halves">
+                  <label>
+                    Customer name
+                    <input
+                      value={draft.customerName}
+                      onChange={(event) => field('customerName', event.target.value)}
+                      aria-describedby={describedBy}
+                      maxLength={100}
+                      placeholder="Cash customer"
+                      autoComplete="name"
+                    />
+                  </label>
+                  <label>
+                    Customer TIN
+                    <input
+                      value={draft.customerTin}
+                      onChange={(event) => field('customerTin', event.target.value)}
+                      aria-describedby={describedBy}
+                      maxLength={15}
+                      placeholder="C0000000000"
+                      spellCheck={false}
+                      className="mono"
+                    />
+                  </label>
+                </div>
+                <p className="field-note">
+                  For a cash sale, blank fields use “Cash customer” and the documented cash customer
+                  TIN, C0000000000.
+                </p>
+              </fieldset>
+              <fieldset className="form-group" disabled={pending}>
+                <legend>Line items</legend>
+                {!draft.items.length ? (
+                  <div className="empty-state">
+                    <p>No line items.</p>
+                    <p className="muted">
+                      Add an item or load the sample invoice to calculate taxes.
+                    </p>
+                    <button
+                      type="button"
+                      className="button"
+                      onClick={() => field('items', [newLine(1)])}
+                    >
+                      Add first item
+                    </button>
+                  </div>
+                ) : (
+                  <div className="line-items">
+                    {draft.items.map((item, index) => (
+                      <div className="line-item" key={item.id}>
+                        <div className="line-item-heading">
+                          <h3>Item {index + 1}</h3>
+                          <div className="button-row">
+                            <button
+                              type="button"
+                              className="button button-small"
+                              aria-label={`Move item ${index + 1} up`}
+                              disabled={index === 0}
+                              onClick={() => moveLine(index, -1)}
+                            >
+                              Move up
+                            </button>
+                            <button
+                              type="button"
+                              className="button button-small"
+                              aria-label={`Move item ${index + 1} down`}
+                              disabled={index === draft.items.length - 1}
+                              onClick={() => moveLine(index, 1)}
+                            >
+                              Move down
+                            </button>
+                            <button
+                              type="button"
+                              className="button button-small"
+                              aria-label={`Remove item ${index + 1}`}
+                              onClick={() =>
+                                field(
+                                  'items',
+                                  draft.items.filter((line) => line.id !== item.id),
+                                )
+                              }
+                            >
+                              Remove
+                            </button>
+                          </div>
                         </div>
+                        <div className="field-grid halves">
+                          <label>
+                            Item code
+                            <input
+                              value={item.code}
+                              onChange={(event) => lineField(item.id, 'code', event.target.value)}
+                              aria-label={`Item ${index + 1} code`}
+                              aria-describedby={describedBy}
+                              maxLength={50}
+                              spellCheck={false}
+                              className="mono"
+                              required
+                            />
+                          </label>
+                          <label>
+                            Description
+                            <input
+                              value={item.description}
+                              onChange={(event) =>
+                                lineField(item.id, 'description', event.target.value)
+                              }
+                              aria-label={`Item ${index + 1} description`}
+                              aria-describedby={describedBy}
+                              placeholder="Item description"
+                              maxLength={100}
+                              required
+                            />
+                          </label>
+                        </div>
+                        <div className="field-grid thirds">
+                          <label>
+                            Quantity
+                            <input
+                              value={item.quantity}
+                              onChange={(event) =>
+                                lineField(item.id, 'quantity', event.target.value)
+                              }
+                              aria-label={`Item ${index + 1} quantity`}
+                              aria-describedby={describedBy}
+                              inputMode="decimal"
+                              required
+                            />
+                          </label>
+                          <label>
+                            Unit price, GHS
+                            <input
+                              value={item.price}
+                              onChange={(event) => lineField(item.id, 'price', event.target.value)}
+                              aria-label={`Item ${index + 1} unit price`}
+                              aria-describedby={describedBy}
+                              placeholder="0.00"
+                              inputMode="decimal"
+                              required
+                            />
+                          </label>
+                          <label>
+                            Discount, GHS
+                            <input
+                              value={item.discount}
+                              onChange={(event) =>
+                                lineField(item.id, 'discount', event.target.value)
+                              }
+                              aria-label={`Item ${index + 1} discount`}
+                              aria-describedby={describedBy}
+                              inputMode="decimal"
+                            />
+                          </label>
+                        </div>
+                        <label className="checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={item.exempt}
+                            onChange={(event) => lineField(item.id, 'exempt', event.target.checked)}
+                          />
+                          Exempt or zero rated (EXM)
+                        </label>
+                        <p className="line-total">
+                          Line total including tax{' '}
+                          <strong>{money(totals?.lines[index]?.total ?? 0)}</strong>
+                        </p>
                       </div>
-                      <div className="field-grid item-description">
-                        <label>
-                          Item code
-                          <input
-                            value={item.code}
-                            onChange={(event) => lineField(item.id, 'code', event.target.value)}
-                            aria-label={`Item ${index + 1} code`}
-                            aria-describedby={describedBy}
-                            maxLength={50}
-                            spellCheck={false}
-                            className="mono"
-                            required
-                          />
-                        </label>
-                        <label>
-                          Description
-                          <input
-                            value={item.description}
-                            onChange={(event) =>
-                              lineField(item.id, 'description', event.target.value)
-                            }
-                            aria-label={`Item ${index + 1} description`}
-                            aria-describedby={describedBy}
-                            placeholder="What did you sell?"
-                            maxLength={100}
-                            required
-                          />
-                        </label>
-                      </div>
-                      <div className="field-grid thirds">
-                        <label>
-                          Quantity
-                          <input
-                            value={item.quantity}
-                            onChange={(event) => lineField(item.id, 'quantity', event.target.value)}
-                            aria-label={`Item ${index + 1} quantity`}
-                            aria-describedby={describedBy}
-                            inputMode="decimal"
-                            required
-                          />
-                        </label>
-                        <label>
-                          Unit price · GHS
-                          <input
-                            value={item.price}
-                            onChange={(event) => lineField(item.id, 'price', event.target.value)}
-                            aria-label={`Item ${index + 1} unit price`}
-                            aria-describedby={describedBy}
-                            placeholder="0.00"
-                            inputMode="decimal"
-                            required
-                          />
-                        </label>
-                        <label>
-                          Line discount · GHS
-                          <input
-                            value={item.discount}
-                            onChange={(event) => lineField(item.id, 'discount', event.target.value)}
-                            aria-label={`Item ${index + 1} discount`}
-                            aria-describedby={describedBy}
-                            inputMode="decimal"
-                          />
-                        </label>
-                      </div>
-                      <label className="checkbox-label">
-                        <input
-                          type="checkbox"
-                          checked={item.exempt}
-                          onChange={(event) => lineField(item.id, 'exempt', event.target.checked)}
-                        />
-                        Exempt / zero rated <span className="mono">EXM</span>
-                      </label>
-                      <div className="line-result">
-                        <span>Line total, including tax</span>
-                        <strong>{money(totals?.lines[index]?.total ?? 0)}</strong>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {draft.items.length > 0 && (
-                <button
-                  type="button"
-                  className="button add-item-button"
-                  disabled={draft.items.length >= 1000}
-                  onClick={() =>
-                    field('items', [...draft.items, newLine(draft.items.length + 1, draft.items)])
-                  }
-                >
-                  <Icon name="plus" size={16} />
-                  Add line item
-                </button>
-              )}
-              <div className="pricing-row">
-                <div>
-                  <h4>Does your price include tax?</h4>
-                  <p>The breakdown updates as you type.</p>
-                </div>
-                <div className="segmented" role="group" aria-label="Price calculation type">
+                    ))}
+                  </div>
+                )}
+                {draft.items.length > 0 && (
                   <button
                     type="button"
-                    aria-pressed={draft.calculationType === 'EXCLUSIVE'}
-                    onClick={() => field('calculationType', 'EXCLUSIVE')}
+                    className="button"
+                    disabled={draft.items.length >= 1000}
+                    onClick={() =>
+                      field('items', [...draft.items, newLine(draft.items.length + 1, draft.items)])
+                    }
                   >
-                    Exclusive
+                    Add line item
                   </button>
-                  <button
-                    type="button"
-                    aria-pressed={draft.calculationType === 'INCLUSIVE'}
-                    onClick={() => field('calculationType', 'INCLUSIVE')}
-                  >
-                    Inclusive
-                  </button>
+                )}
+                <div className="pricing-row">
+                  <p>Unit prices are</p>
+                  <div className="button-row" role="group" aria-label="Price calculation type">
+                    <button
+                      type="button"
+                      className="button"
+                      aria-pressed={draft.calculationType === 'EXCLUSIVE'}
+                      onClick={() => field('calculationType', 'EXCLUSIVE')}
+                    >
+                      Exclusive
+                    </button>
+                    <button
+                      type="button"
+                      className="button"
+                      aria-pressed={draft.calculationType === 'INCLUSIVE'}
+                      onClick={() => field('calculationType', 'INCLUSIVE')}
+                    >
+                      Inclusive
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </fieldset>
-            <div className="card submit-card">
-              <div className="submit-options">
-                <label className="scenario-label">
+              </fieldset>
+              <section className="calculation-section" aria-label="Live invoice breakdown">
+                <h3>Tax calculation</h3>
+                <Breakdown totals={totals} />
+                <p className="total-preview">
+                  Invoice total <strong>{money(totals?.total ?? 0)}</strong>
+                </p>
+                <p className="field-note">
+                  VAT ({rate(GHANA_2026.vatBps)}), NHIL ({rate(GHANA_2026.nhilBps)}), and GETFund (
+                  {rate(GHANA_2026.getfundBps)}) use the same taxable base. Amounts round per line
+                  to the nearest pesewa.
+                </p>
+                {totalsState.message && draft.items.length > 0 && (
+                  <p className="validation-message" role="status">
+                    Complete the item values to calculate totals. {totalsState.message}
+                  </p>
+                )}
+              </section>
+              <div className="submit-section">
+                <label>
                   Mock response
                   <select
                     aria-label="Mock response scenario"
@@ -855,485 +829,382 @@ export function Playground() {
                     <option value="429">Simulate rate limit (429)</option>
                   </select>
                 </label>
-                <span className="muted-small">No real invoice is issued.</span>
-              </div>
-              <button
-                type="submit"
-                className="button button-primary submit-button"
-                disabled={pending || mockStatus === 'down'}
-              >
-                {pending ? (
-                  <>
-                    <span className="spinner" aria-hidden="true" />
-                    Submitting to mock…
-                  </>
-                ) : (
-                  <>
-                    Issue mock invoice <Icon name="arrow" />
-                  </>
-                )}
-              </button>
-              <p className="submit-note">A fake signature. A real request shape.</p>
-            </div>
-          </form>
-          <aside className="summary-column" aria-label="Live invoice breakdown">
-            <div className="section-heading summary-heading">
-              <div>
-                <span className="step-label">02 / INSPECT</span>
-                <h2>Every pesewa, accounted for.</h2>
-              </div>
-            </div>
-            <section className="card tax-card">
-              <div className="tax-card-top">
-                <span className="mono micro">LIVE BREAKDOWN</span>
-                <span className="live-label">
-                  <span aria-hidden="true" />
-                  Live
-                </span>
-              </div>
-              <div className="total-preview">
-                <span>Invoice total</span>
-                <strong>{money(totals?.total ?? 0)}</strong>
-                <span className="total-preview-note">
-                  {draft.calculationType === 'EXCLUSIVE'
-                    ? 'Includes VAT and levies'
-                    : 'Tax included in your prices'}
-                </span>
-              </div>
-              <Breakdown totals={totals} />
-              <div className="tax-card-foot">
-                <Icon name="check-circle" size={15} />
-                <p>
-                  {rate(GHANA_2026.vatBps)} VAT + {rate(GHANA_2026.nhilBps)} NHIL +{' '}
-                  {rate(GHANA_2026.getfundBps)} GETFund.
-                  <br />
-                  All applied to the same taxable base.
+                <button
+                  type="submit"
+                  className="button button-primary"
+                  disabled={pending || mockStatus === 'down'}
+                >
+                  {pending ? 'Submitting to mock…' : 'Issue mock invoice'}
+                </button>
+                <p className="field-note">
+                  The mock stores invoices in memory. Reloading the browser clears browser mode
+                  data.
                 </p>
               </div>
-            </section>
-            {totalsState.message && draft.items.length > 0 && (
-              <p className="preview-warning" role="status">
-                Complete the item values to calculate totals. {totalsState.message}
+            </form>
+            {error && (
+              <div
+                id="builder-error"
+                className="error-message"
+                role="alert"
+                tabIndex={-1}
+                ref={errorRef}
+              >
+                <h3>Request failed</h3>
+                <p>{error}</p>
+                {rawError && (
+                  <details>
+                    <summary>Raw error response</summary>
+                    <pre tabIndex={0} aria-label="Raw error response code">
+                      {rawError}
+                    </pre>
+                  </details>
+                )}
+              </div>
+            )}
+            {identityWarning && (
+              <p className="validation-message" role="status">
+                {identityWarning}
               </p>
             )}
-            <aside className="developer-note">
-              <span className="note-symbol" aria-hidden="true">
-                ↳
-              </span>
-              <div>
-                <h3>Built for the details.</h3>
-                <p>
-                  Integer money math. Explicit rounding.
-                  <br />
-                  Exact request casing. No hidden levies.
+            <details className="draft-json">
+              <summary>Inspect draft JSON</summary>
+              <CodeBlock
+                title="Draft request"
+                label="Draft request JSON code"
+                value={requestState.request ? requestJson : ''}
+                empty={
+                  draft.items.length
+                    ? requestState.message
+                    : 'Add a line item or load the sample invoice.'
+                }
+              />
+            </details>
+          </section>
+
+          <section
+            id="receipt"
+            className="manual-section receipt-section"
+            aria-labelledby="receipt-title"
+            tabIndex={-1}
+            ref={receiptRef}
+          >
+            <h2 id="receipt-title">Receipt and refunds</h2>
+            {!issued ? (
+              <div className="empty-state">
+                <p>No receipt yet.</p>
+                <p className="muted">
+                  Submit an invoice from the <a href="#builder">invoice builder</a>. The mock
+                  response, receipt, and refund controls will appear here.
                 </p>
-                <a href="#integration">
-                  Inspect the payload <Icon name="arrow" size={14} />
-                </a>
               </div>
-            </aside>
-            <div className="rule-note">
-              <span className="mono micro">THE 2026 CHANGE</span>
-              <p>
-                VAT is no longer charged on top of NHIL and GETFund. The COVID-19 levy is removed.
-              </p>
+            ) : (
+              <>
+                <p className="receipt-status" role="status">
+                  Invoice accepted by the mock.
+                </p>
+                <div className="button-row receipt-actions">
+                  <button type="button" className="button" onClick={() => window.print()}>
+                    Print receipt
+                  </button>
+                  <button
+                    type="button"
+                    className="button"
+                    disabled={pending}
+                    onClick={() => setRefundOpen((current) => !current)}
+                  >
+                    {refundOpen ? 'Close refund form' : 'Refund this invoice'}
+                  </button>
+                </div>
+                <article className="receipt-paper" aria-label="Mock invoice receipt">
+                  <h3>Mock receipt</h3>
+                  <p>This receipt has no tax validity.</p>
+                  <div className="receipt-business">
+                    <h4>{issued.businessName}</h4>
+                    <p>TIN {issued.businessTin}</p>
+                    <p>
+                      {issued.request.invoiceNumber}
+                      <br />
+                      {issued.request.transactionDate}
+                    </p>
+                  </div>
+                  <dl className="receipt-meta">
+                    <dt>Customer</dt>
+                    <dd>{issued.request.businessPartnerName}</dd>
+                    <dt>Receipt number</dt>
+                    <dd>{issued.result.response.message.ysdcrecnum}</dd>
+                    <dt>SDC ID</dt>
+                    <dd>{issued.result.response.message.ysdcid}</dd>
+                    <dt>Stamped at</dt>
+                    <dd>{issued.result.response.message.ysdctime} UTC</dd>
+                  </dl>
+                  <div className="table-scroll" tabIndex={0} aria-label="Receipt items table">
+                    <table className="receipt-items">
+                      <caption>Items</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">Description</th>
+                          <th scope="col">Quantity</th>
+                          <th scope="col">Unit price</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {issued.request.items.map((item) => (
+                          <tr key={item.itemCode}>
+                            <td>{item.description}</td>
+                            <td>{String(item.quantity)}</td>
+                            <td>{amount(item.unitPrice)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <Breakdown totals={issued.totals} />
+                  <p className="receipt-grand-total">
+                    Total <strong>{money(issued.totals.total)}</strong>
+                  </p>
+                  <div className="receipt-qr">
+                    {qr ? (
+                      <img
+                        src={qr}
+                        alt="QR code encoding this mock receipt payload. This is a fake receipt, not valid for tax verification."
+                        width={128}
+                        height={128}
+                      />
+                    ) : (
+                      <p role="status">
+                        {qrError
+                          ? 'The mock QR code could not be generated.'
+                          : 'Preparing mock QR code…'}
+                      </p>
+                    )}
+                    <div>
+                      <h4>Fake signature</h4>
+                      <p className="mono">{issued.result.response.message.ysdcregsig}</p>
+                      <p className="muted">For integration testing only.</p>
+                    </div>
+                  </div>
+                  <details className="signature-details">
+                    <summary>Signature details</summary>
+                    <dl className="receipt-meta">
+                      <dt>Internal data</dt>
+                      <dd>{issued.result.response.message.ysdcintdata}</dd>
+                      <dt>Machine registration</dt>
+                      <dd>{issued.result.response.message.ysdcmrc}</dd>
+                      <dt>Status</dt>
+                      <dd>{issued.result.response.status}</dd>
+                    </dl>
+                  </details>
+                </article>
+                {refundOpen && (
+                  <section
+                    className="refund-section"
+                    aria-labelledby="refund-title"
+                    aria-busy={pending}
+                  >
+                    <h3 id="refund-title">Refund quantities</h3>
+                    <p>Return only the quantities still available on this invoice.</p>
+                    <div className="refund-items">
+                      {issued.request.items.map((item, index) => (
+                        <div className="refund-item" key={item.itemCode}>
+                          <div>
+                            <strong>{item.description}</strong>
+                            <p className="muted">
+                              {remaining(item, refunds)} of {String(item.quantity)} available ·{' '}
+                              {item.itemCode}
+                            </p>
+                          </div>
+                          <label>
+                            Refund quantity
+                            <input
+                              aria-label={`Refund item ${index + 1} quantity`}
+                              type="number"
+                              min="0"
+                              max={remaining(item, refunds)}
+                              step="any"
+                              value={refundQuantities[item.itemCode] || ''}
+                              onChange={(event) =>
+                                setRefundQuantities((current) => ({
+                                  ...current,
+                                  [item.itemCode]: event.target.value,
+                                }))
+                              }
+                              disabled={pending}
+                              placeholder="0"
+                              aria-describedby={error ? 'refund-help builder-error' : 'refund-help'}
+                            />
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    <p id="refund-help" className="field-note">
+                      Each refund references the original invoice and uses a unique refund
+                      reference.
+                    </p>
+                    <button
+                      type="button"
+                      className="button button-primary"
+                      onClick={() => void submitRefund()}
+                      disabled={pending}
+                    >
+                      {pending ? 'Processing refund…' : 'Issue partial refund'}
+                    </button>
+                    <p className="refund-status" role="status" tabIndex={-1} ref={refundStatusRef}>
+                      {refundStatus}
+                    </p>
+                    {refunds.length > 0 && (
+                      <section className="refund-history" aria-label="Refund history">
+                        <h4>Refund history</h4>
+                        {refunds.map((refund) => (
+                          <div className="refund-history-item" key={refund.request.reference}>
+                            <div>
+                              <strong className="mono">{refund.request.reference}</strong>
+                              <p>
+                                {refund.cancelled
+                                  ? 'Cancelled. Quantities restored.'
+                                  : `${refund.request.items.map((item) => `${item.quantity} × ${item.itemCode}`).join(', ')} returned.`}
+                              </p>
+                            </div>
+                            {!refund.cancelled && (
+                              <button
+                                type="button"
+                                className="button button-small"
+                                disabled={pending}
+                                onClick={() => void cancelRefund(refund)}
+                              >
+                                Cancel refund
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </section>
+                    )}
+                  </section>
+                )}
+                <h3 className="response-heading">Invoice exchange</h3>
+                <p className="muted">
+                  These are the exact request and response from the submitted invoice. Editing the
+                  draft does not change this record.
+                </p>
+                <div className="request-response">
+                  <CodeBlock
+                    title="REQUEST"
+                    label="Sent invoice request JSON code"
+                    value={JSON.stringify(issued.request, null, 2)}
+                  />
+                  <CodeBlock
+                    title="RESPONSE"
+                    label="Invoice response JSON code"
+                    value={responseJson}
+                  />
+                </div>
+              </>
+            )}
+          </section>
+
+          <ApiReference />
+
+          <section id="integration" className="manual-section" aria-labelledby="integration-title">
+            <h2 id="integration-title">SDK integration</h2>
+            <p>
+              The SDK call below sends the submitted invoice, or the current draft if no invoice has
+              been submitted. Start the local mock before running it.
+            </p>
+            <CodeBlock
+              title="TypeScript"
+              label="SDK snippet code"
+              value={issued || requestState.request ? snippet : ''}
+              empty="Build an invoice or load the sample to generate an SDK call."
+              copyLabel="Copy SDK snippet"
+            />
+            <p>
+              Keep real GRA credentials on your server and load them from environment variables.
+              Change the base URL and credentials when GRA grants access. Review the documented
+              assumptions before using a live endpoint.
+            </p>
+            <p>
               <a
                 href="https://gra.gov.gh/domestic-tax/tax-types/vat/"
                 target="_blank"
                 rel="noreferrer"
               >
-                Read GRA’s official guidance <Icon name="external" size={12} />
-                <span className="sr-only"> (opens in a new tab)</span>
+                Official GRA VAT guidance<span className="sr-only"> (opens in a new tab)</span>
               </a>
-            </div>
-          </aside>
-        </div>
-        {error && (
-          <div
-            id="builder-error"
-            className="error-banner"
-            role="alert"
-            tabIndex={-1}
-            ref={errorRef}
-          >
-            <strong>We couldn’t complete that request.</strong>
-            <p>{error}</p>
-            {rawError && (
-              <details>
-                <summary>Raw error response</summary>
-                <pre>{rawError}</pre>
-              </details>
-            )}
-          </div>
-        )}
-        {identityWarning && (
-          <p className="warning-banner" role="status">
-            {identityWarning}
-          </p>
-        )}
-        {issued && (
-          <section
-            className="receipt-section"
-            aria-labelledby="receipt-title"
-            tabIndex={-1}
-            ref={receiptRef}
-          >
-            <div className="section-heading">
-              <div>
-                <span className="step-label">03 / CHECK THE RESULT</span>
-                <h2 id="receipt-title">Your mock receipt is ready.</h2>
-              </div>
-              <div className="receipt-actions">
-                <button
-                  type="button"
-                  className="button button-outlined"
-                  onClick={() => window.print()}
-                >
-                  <Icon name="print" size={16} />
-                  Print receipt
-                </button>
-                <button
-                  type="button"
-                  className="button button-primary"
-                  disabled={pending}
-                  onClick={() => setRefundOpen((current) => !current)}
-                >
-                  <Icon name="refund" size={16} />
-                  Refund this invoice
-                </button>
-              </div>
-            </div>
-            <div className="receipt-grid">
-              <article className="receipt-paper" aria-label="Mock invoice receipt">
-                <div className="receipt-watermark">MOCK RECEIPT · NO TAX VALIDITY</div>
-                <div className="receipt-business">
-                  <div className="brand-mark receipt-brand" aria-hidden="true">
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                  </div>
-                  <h3>{issued.businessName}</h3>
-                  <p>TIN {issued.businessTin}</p>
-                  <p>
-                    {issued.request.invoiceNumber} · {issued.request.transactionDate}
-                  </p>
-                </div>
-                <div className="receipt-meta">
-                  <span>Customer</span>
-                  <strong>{issued.request.businessPartnerName}</strong>
-                  <span>Receipt number</span>
-                  <strong>{issued.result.response.message.ysdcrecnum}</strong>
-                  <span>SDC ID</span>
-                  <strong>{issued.result.response.message.ysdcid}</strong>
-                </div>
-                <table className="receipt-items">
-                  <caption className="sr-only">Purchased items</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">Item</th>
-                      <th scope="col">Qty</th>
-                      <th scope="col">Unit price</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {issued.request.items.map((item) => (
-                      <tr key={item.itemCode}>
-                        <td>{item.description}</td>
-                        <td>{String(item.quantity)}</td>
-                        <td>{amount(item.unitPrice)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <Breakdown totals={issued.totals} />
-                <div className="receipt-grand-total">
-                  <span>Total paid</span>
-                  <strong>{money(issued.totals.total)}</strong>
-                </div>
-                <div className="receipt-qr">
-                  {qr ? (
-                    <img
-                      src={qr}
-                      alt="QR code encoding this mock receipt payload. This is a fake receipt, not valid for tax verification."
-                      width={128}
-                      height={128}
-                    />
-                  ) : (
-                    <p role="status">Preparing mock QR code…</p>
-                  )}
-                  <div>
-                    <strong>FAKE SIGNATURE</strong>
-                    <p className="mono">{issued.result.response.message.ysdcregsig}</p>
-                    <p>{issued.result.response.message.ysdctime} UTC</p>
-                    <p>For integration testing only.</p>
-                  </div>
-                </div>
-              </article>
-              <div className="receipt-explainer">
-                <span className="success-mark">
-                  <Icon name="check" size={20} />
-                </span>
-                <h3>The round trip works.</h3>
-                <p>
-                  Your payload passed validation, reached the mock, and came back in the documented
-                  GRA response envelope.
-                </p>
-                <p>
-                  This receipt has a fake signature and a mock QR payload. Its numbers have no tax
-                  validity.
-                </p>
-                <div className="receipt-copy-row">
-                  <CopyButton value={JSON.stringify(issued.result, null, 2)} />
-                  <CopyButton value={snippet} label="Copy SDK snippet" />
-                </div>
-                <div className="receipt-security">
-                  <span className="mono micro">SIGNATURE DETAILS</span>
-                  <dl>
-                    <dt>Internal data</dt>
-                    <dd>{issued.result.response.message.ysdcintdata}</dd>
-                    <dt>Machine registration</dt>
-                    <dd>{issued.result.response.message.ysdcmrc}</dd>
-                    <dt>Transaction status</dt>
-                    <dd>{issued.result.response.status}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-            {refundOpen && (
-              <section className="card refund-card" aria-labelledby="refund-title">
-                <div className="card-title">
-                  <h3 id="refund-title">Choose quantities to refund</h3>
-                  <span className="mock-label">MOCK ONLY</span>
-                </div>
-                <p className="form-description">
-                  Refunds reference this invoice. You can return only the quantities still
-                  available.
-                </p>
-                <div className="refund-items">
-                  {issued.request.items.map((item, index) => (
-                    <div className="refund-item" key={item.itemCode}>
-                      <div>
-                        <strong>{item.description}</strong>
-                        <span className="muted-small">
-                          {remaining(item, refunds)} of {String(item.quantity)} available ·{' '}
-                          {item.itemCode}
-                        </span>
-                      </div>
-                      <label>
-                        Refund quantity
-                        <input
-                          aria-label={`Refund item ${index + 1} quantity`}
-                          type="number"
-                          min="0"
-                          max={remaining(item, refunds)}
-                          step="any"
-                          value={refundQuantities[item.itemCode] || ''}
-                          onChange={(event) =>
-                            setRefundQuantities((current) => ({
-                              ...current,
-                              [item.itemCode]: event.target.value,
-                            }))
-                          }
-                          disabled={pending}
-                          placeholder="0"
-                          aria-describedby="refund-help"
-                        />
-                      </label>
-                    </div>
-                  ))}
-                </div>
-                <p id="refund-help" className="field-note">
-                  The mock rejects quantities above those originally sold. Refund references are
-                  unique per request.
-                </p>
-                <button
-                  type="button"
-                  className="button button-primary"
-                  onClick={() => void submitRefund()}
-                  disabled={pending}
-                >
-                  {pending ? 'Processing…' : 'Issue partial refund'}
-                  <Icon name="refund" size={16} />
-                </button>
-                <p className="refund-status" role="status" tabIndex={-1} ref={refundStatusRef}>
-                  {refundStatus}
-                </p>
-                {refunds.length > 0 && (
-                  <div className="refund-history">
-                    <h4>Refund history</h4>
-                    {refunds.map((refund) => (
-                      <div className="refund-history-item" key={refund.request.reference}>
-                        <div>
-                          <strong>{refund.request.reference}</strong>
-                          <span>
-                            {refund.cancelled
-                              ? 'Cancelled, quantities restored'
-                              : `${refund.request.items.map((item) => `${item.quantity} × ${item.itemCode}`).join(', ')} returned`}
-                          </span>
-                        </div>
-                        {!refund.cancelled && (
-                          <button
-                            type="button"
-                            className="button button-small button-outlined"
-                            disabled={pending}
-                            onClick={() => void cancelRefund(refund)}
-                          >
-                            Cancel refund
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            )}
+            </p>
           </section>
-        )}
-        <section
-          id="integration"
-          className="integration-section"
-          aria-labelledby="integration-title"
-        >
-          <div className="section-heading">
-            <div>
-              <span className="step-label">{issued ? '04' : '03'} / TAKE IT TO YOUR CODE</span>
-              <h2 id="integration-title">Nothing behind the curtain.</h2>
-            </div>
-            <span className="muted-small">The exact payload, response, and SDK call.</span>
-          </div>
-          <div className="code-panel">
-            <div className="code-toolbar">
-              <div className="code-tabs" role="group" aria-label="Inspect integration data">
-                <button
-                  type="button"
-                  aria-pressed={dataTab === 'request'}
-                  onClick={() => setDataTab('request')}
-                >
-                  Request JSON
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={dataTab === 'response'}
-                  onClick={() => setDataTab('response')}
-                >
-                  Response JSON
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={dataTab === 'sdk'}
-                  onClick={() => setDataTab('sdk')}
-                >
-                  <Icon name="code" size={15} />
-                  SDK snippet
-                </button>
-              </div>
-              {selectedCode && (
-                <CopyButton
-                  value={selectedCode}
-                  label={dataTab === 'sdk' ? 'Copy SDK snippet' : 'Copy JSON'}
-                />
-              )}
-            </div>
-            <div
-              className="code-content"
-              tabIndex={0}
-              aria-label={
-                dataTab === 'request'
-                  ? 'Request JSON code'
-                  : dataTab === 'response'
-                    ? 'Response JSON code'
-                    : 'SDK snippet code'
-              }
-            >
-              {dataTab === 'request' && !requestState.request ? (
-                <div className="code-empty">
-                  <span className="code-empty-cursor" aria-hidden="true">
-                    ▌
-                  </span>
-                  <p>
-                    Your request will appear here.
-                    <br />
-                    <span>
-                      {draft.items.length
-                        ? requestState.message
-                        : 'Add a line item or load the sample invoice to get started.'}
-                    </span>
-                  </p>
-                </div>
-              ) : dataTab === 'response' && !issued ? (
-                <div className="code-empty">
-                  <span className="code-empty-cursor" aria-hidden="true">
-                    ▌
-                  </span>
-                  <p>
-                    Waiting for your first response.
-                    <br />
-                    <span>Issue a mock invoice to see the receipt envelope.</span>
-                  </p>
-                </div>
-              ) : (
-                <pre>{selectedCode}</pre>
-              )}
-            </div>
-            <div className="code-panel-foot">
-              <span>
-                <span className="code-dot" />
-                POST /vsdc/api/v1/taxpayer/:id/invoice
-              </span>
-              <span>application/json</span>
-            </div>
-          </div>
-        </section>
-        <footer className="site-footer">
-          <div className="footer-top">
-            <span className="footer-wordmark">gra/evat</span>
-            <p>A useful starting point for building in Ghana.</p>
-            <a href="#builder">Back to builder ↑</a>
-          </div>
-          <p>
-            Independent, open source software. Not affiliated with GRA. Not tax advice. Verify
-            against official GRA documentation.
-          </p>
-          <span className="mono micro">NO REAL CREDENTIALS. NO REAL INVOICES.</span>
-        </footer>
+          <footer className="manual-footer">
+            <p>
+              Independent open source software. Not affiliated with GRA. Not tax advice. Verify
+              against official GRA documentation.
+            </p>
+            <a href="#quickstart">Back to quickstart</a>
+          </footer>
+        </div>
       </main>
     </>
   );
 }
 
+function CodeBlock({
+  title,
+  label,
+  value,
+  empty = 'No data yet.',
+  copyLabel = 'Copy JSON',
+}: {
+  title: string;
+  label: string;
+  value: string;
+  empty?: string;
+  copyLabel?: string;
+}) {
+  return (
+    <div className="code-block">
+      <div className="code-header">
+        <span>{title}</span>
+        {value && <CopyButton value={value} label={copyLabel} />}
+      </div>
+      <div className="code-body">
+        {value ? (
+          <pre tabIndex={0} aria-label={label}>
+            {value}
+          </pre>
+        ) : (
+          <p className="muted">{empty}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Breakdown({ totals }: { totals: Totals | null }) {
   return (
-    <table className="breakdown-table">
-      <caption className="sr-only">Invoice levy and VAT breakdown in Ghana cedis</caption>
-      <tbody>
-        <tr>
-          <th scope="row">Net subtotal</th>
-          <td>{money(totals?.subtotal ?? 0)}</td>
-        </tr>
-        <tr>
-          <th scope="row">Discounts</th>
-          <td>{money(totals?.discountAmount ?? 0)}</td>
-        </tr>
-        <tr>
-          <th scope="row">
-            NHIL <span>{rate(GHANA_2026.nhilBps)}</span>
-          </th>
-          <td>{money(totals?.nhil ?? 0)}</td>
-        </tr>
-        <tr>
-          <th scope="row">
-            GETFund <span>{rate(GHANA_2026.getfundBps)}</span>
-          </th>
-          <td>{money(totals?.getfund ?? 0)}</td>
-        </tr>
-        <tr className="vat-row">
-          <th scope="row">
-            VAT <span>{rate(GHANA_2026.vatBps)}</span>
-          </th>
-          <td>{money(totals?.vat ?? 0)}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div className="table-scroll" tabIndex={0} aria-label="Tax breakdown table">
+      <table className="breakdown-table">
+        <caption className="sr-only">Invoice levy and VAT breakdown in Ghana cedis</caption>
+        <tbody>
+          <tr>
+            <th scope="row">Net subtotal</th>
+            <td>{money(totals?.subtotal ?? 0)}</td>
+          </tr>
+          <tr>
+            <th scope="row">Discounts included in subtotal</th>
+            <td>{money(totals?.discountAmount ?? 0)}</td>
+          </tr>
+          <tr>
+            <th scope="row">NHIL ({rate(GHANA_2026.nhilBps)})</th>
+            <td>{money(totals?.nhil ?? 0)}</td>
+          </tr>
+          <tr>
+            <th scope="row">GETFund ({rate(GHANA_2026.getfundBps)})</th>
+            <td>{money(totals?.getfund ?? 0)}</td>
+          </tr>
+          <tr>
+            <th scope="row">VAT ({rate(GHANA_2026.vatBps)})</th>
+            <td>{money(totals?.vat ?? 0)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   );
 }

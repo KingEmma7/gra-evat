@@ -29,7 +29,7 @@ async function loadSample(page: Page) {
 test('build an invoice, inspect integer taxes, issue a mock receipt', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByText('In-browser mock is ready')).toBeVisible();
-  await expect(page.getByText('A good invoice starts with one item.')).toBeVisible();
+  await expect(page.getByText('No line items.')).toBeVisible();
   await checkAccessibility(page);
   await loadSample(page);
   await expect(page.locator('.total-preview strong')).toContainText('330.01');
@@ -37,15 +37,13 @@ test('build an invoice, inspect integer taxes, issue a mock receipt', async ({ p
   await expect(page.locator('.total-preview strong')).toContainText('275.00');
   await page.getByRole('button', { name: 'Exclusive', exact: true }).click();
   await page.getByRole('button', { name: 'Issue mock invoice', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Your mock receipt is ready.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Mock receipt' })).toBeVisible();
   await expect(page.getByRole('article', { name: 'Mock invoice receipt' })).toContainText('330.01');
   await expect(
     page.getByRole('img', { name: /QR code encoding this mock receipt/ }),
   ).toHaveAttribute('src', /^data:image\/png/);
-  await page.getByRole('button', { name: 'Response JSON', exact: true }).click();
-  await expect(page.getByLabel('Response JSON code')).toContainText('ysdcregsig');
-  await expect(page.getByLabel('Response JSON code')).toContainText('MOCK');
-  await page.getByRole('button', { name: 'SDK snippet', exact: true }).click();
+  await expect(page.getByLabel('Invoice response JSON code')).toContainText('ysdcregsig');
+  await expect(page.getByLabel('Invoice response JSON code')).toContainText('MOCK');
   await expect(page.getByLabel('SDK snippet code')).toContainText('client.invoice(invoice)');
   await checkAccessibility(page);
 });
@@ -85,10 +83,10 @@ test('mock failures are readable and the builder fits a 320px viewport', async (
   await loadSample(page);
   await page.getByRole('combobox', { name: 'Mock response scenario' }).selectOption('500');
   await page.getByRole('button', { name: 'Issue mock invoice', exact: true }).click();
-  await expect(page.locator('#builder-error')).toContainText('couldn’t complete');
+  await expect(page.locator('#builder-error')).toContainText('Request failed');
   await page.getByText('Raw error response', { exact: true }).click();
   await expect(page.locator('#builder-error').locator('pre')).toContainText('500');
-  await expect(page.getByRole('heading', { name: 'Your mock receipt is ready.' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Mock receipt' })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );
@@ -97,4 +95,21 @@ test('mock failures are readable and the builder fits a 320px viewport', async (
   await page.getByRole('combobox', { name: 'Mock connection' }).selectOption('server');
   await expect(page.getByText('Local mock is unreachable')).toBeVisible();
   await expect(page.getByText('Start it with: pnpm --filter @gra-evat/mock start')).toBeVisible();
+  await page.getByRole('combobox', { name: 'Mock connection' }).selectOption('browser');
+  await page.getByRole('combobox', { name: 'Mock response scenario' }).selectOption('normal');
+  await page.getByRole('textbox', { name: 'Business name', exact: true }).fill('A'.repeat(100));
+  await page.getByRole('textbox', { name: 'Invoice number', exact: true }).fill('B'.repeat(100));
+  await page
+    .getByRole('textbox', { name: 'Item 1 description', exact: true })
+    .fill('C'.repeat(100));
+  await page.getByRole('button', { name: 'Issue mock invoice', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Mock receipt', exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.getByRole('button', { name: 'Refund this invoice', exact: true }).click();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await checkAccessibility(page);
 });

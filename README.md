@@ -11,6 +11,8 @@ Build an invoice against a local simulator, inspect the exact v8.2 JSON, then co
 
 This source project is ready for package publication review. The npm packages have **not** been published. Until publication, use the workspace commands below or install a locally packed archive.
 
+The web interface is a monochrome reference manual. It uses local IBM Plex fonts, a 240px desktop navigation column, and a 720px content column. Every documented operation has independently copyable request and response examples, displayed side by side on desktop. See [DESIGN.md](docs/DESIGN.md) for screenshots and the layout audit.
+
 ## Ten-minute quickstart
 
 Requirements: Node 20.19+ (or a compatible newer LTS) and pnpm 9.15.9. With Corepack, run `corepack prepare pnpm@9.15.9 --activate`. Alternatively install `pnpm@9.15.9` with npm.
@@ -27,7 +29,7 @@ Expected services:
 - Playground: [http://localhost:3000](http://localhost:3000)
 - Local mock: [http://localhost:8787](http://localhost:8787)
 
-Open the playground, choose **Load sample invoice**, and issue a demo receipt. The default browser simulator works without a backend and keeps state in memory. Select local server mode to use the separately running Hono server. Refreshing the page resets browser receipts; restarting the server resets server receipts.
+Open the playground, select **Invoice builder** in the manual navigation, choose **Load sample invoice**, and issue a demo receipt. The default browser simulator works without a backend and keeps state in memory. Select local server mode to use the separately running Hono server. Refreshing the page resets browser receipts; restarting the server resets server receipts.
 
 Issue an invoice from Node:
 
@@ -70,6 +72,8 @@ else console.error(result.error);
 // const receipt = await client.throwing.invoice({ ...invoice, invoiceNumber: 'POS-0002' });
 ```
 
+The measured core ESM entry is **40,389 bytes**, or **10,017 bytes gzipped** (9.78 KiB), excluding external Zod.
+
 Core has one runtime dependency, Zod 3. Money stays in branded integer pesewas; quantity multiplication and rates use integer rational arithmetic. `formatMoney` returns an exact decimal string at the API boundary. Monetary JSON accepts the documented numeric values and numeric strings. Use `Intl.NumberFormat('en-GH', { style: 'currency', currency: 'GHS' })` for display only.
 
 See [API.md](docs/API.md) for paths, fields and operation names, [TAX-RULES.md](docs/TAX-RULES.md) for the versioned rules and rounding policy, and [ASSUMPTIONS.md](docs/ASSUMPTIONS.md) for every local policy and undocumented response.
@@ -101,8 +105,8 @@ Bun, Deno, browsers and edge runtimes can use the ESM core with their `fetch`, o
 ## CLI
 
 ```sh
-pnpm --filter @gra-evat/cli exec gra-evat validate ../../examples/invoice.json
-pnpm --filter @gra-evat/cli exec gra-evat calc --price 100 --inclusive
+pnpm cli validate examples/invoice.json
+pnpm cli calc --price 100 --inclusive
 ```
 
 The inclusive example prints base `83.33`, NHIL `2.08`, GETFund `2.08`, VAT `12.51`, and total `100.00`. The last pesewa is allocated to VAT so totals reconcile under the documented local rounding assumption. Invalid payloads exit with code 1 and list all discovered field issues and fix hints.
@@ -133,6 +137,8 @@ Configure `PORT` (8787), `MOCK_LATENCY_MS`, `MOCK_FAIL_STATUS`, and `MOCK_SEED`.
 | `pnpm check:size`     | Core ESM and gzipped entry sizes, external Zod excluded           |
 
 Run `pnpm exec playwright install chromium` once before browser tests. Package declarations must exist before the first typecheck, so run `pnpm build:packages` after installation. The CI workflow follows that order on Node 20 and 22. See [VERIFICATION.md](docs/VERIFICATION.md) for measured results and limitations.
+
+See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for Vercel settings, container commands, release setup and font licenses.
 
 ## Deployment and releases
 

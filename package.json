@@ -21,7 +21,8 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "pnpm build:packages && pnpm check:packages && changeset publish",
-    "check:size": "node scripts/bundle-size.mjs"
+    "check:size": "node scripts/bundle-size.mjs",
+    "cli": "node packages/cli/dist/index.js"
   },
   "devDependencies": {
     "typescript": "5.9.3",

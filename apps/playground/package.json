@@ -10,20 +10,22 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@fontsource/ibm-plex-sans": "5.3.0",
     "@gra-evat/core": "workspace:*",
     "@gra-evat/mock": "workspace:*",
+    "@tailwindcss/postcss": "4.3.3",
     "next": "15.5.28",
+    "qrcode": "1.5.4",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "tailwindcss": "4.3.3",
-    "@tailwindcss/postcss": "4.3.3",
-    "qrcode": "1.5.4"
+    "tailwindcss": "4.3.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.64.1",
     "@types/qrcode": "1.5.6",
     "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0",
-    "@playwright/test": "1.64.1",
-    "@axe-core/playwright": "4.13.0"
+    "@types/react-dom": "19.3.0"
   }
 }

@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { Icon } from './icon';
 
 export function CopyButton({ value, label = 'Copy JSON' }: { value: string; label?: string }) {
   const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');
@@ -20,8 +19,7 @@ export function CopyButton({ value, label = 'Copy JSON' }: { value: string; labe
         className="button button-small button-quiet"
         onClick={() => void copy()}
       >
-        <Icon name={state === 'copied' ? 'check' : 'copy'} size={14} />
-        {state === 'copied' ? 'Copied' : label}
+        {state === 'copied' ? 'Copied' : state === 'failed' ? 'Copy unavailable' : label}
       </button>
       <span className="sr-only" role="status">
         {state === 'failed'

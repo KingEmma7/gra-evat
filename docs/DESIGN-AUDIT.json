@@ -1,0 +1,119 @@
+{
+  "screenshots": [
+    "desktop-quickstart.png",
+    "desktop-copy-success.png",
+    "desktop-builder-empty.png",
+    "desktop-builder-empty-items.png",
+    "desktop-receipt-empty.png",
+    "desktop-sdk-empty.png",
+    "desktop-builder-filled.png",
+    "desktop-builder-complete.png",
+    "desktop-tax-breakdown.png",
+    "desktop-receipt-success.png",
+    "desktop-receipt-paper.png",
+    "print-receipt.png",
+    "desktop-refund-form.png",
+    "desktop-refund-validation-error.png",
+    "desktop-refund-success.png",
+    "desktop-refund-cancelled.png",
+    "desktop-api-reference.png",
+    "endpoint-01-invoice.png",
+    "endpoint-02-refund.png",
+    "endpoint-03-partial-refund.png",
+    "endpoint-04-refund-cancellation.png",
+    "endpoint-05-purchase.png",
+    "endpoint-06-purchase-return.png",
+    "endpoint-07-purchase-return-cancellation.png",
+    "endpoint-08-credit-note.png",
+    "endpoint-09-statement-of-account.png",
+    "endpoint-10-health.png",
+    "endpoint-11-tin.png",
+    "endpoint-12-ghana-card.png",
+    "endpoint-13-inventory.png",
+    "endpoint-14-callback.png",
+    "desktop-sdk-integration.png",
+    "mobile-quickstart.png",
+    "mobile-builder.png",
+    "mobile-api-reference.png",
+    "mobile-receipt.png",
+    "mobile-receipt-paper.png",
+    "mobile-refunds.png",
+    "mobile-long-text-receipt.png",
+    "desktop-validation-error.png",
+    "desktop-server-error.png",
+    "desktop-rate-limit-error.png",
+    "desktop-mock-checking.png",
+    "mobile-mock-checking.png",
+    "desktop-submit-loading.png",
+    "mobile-submit-loading.png",
+    "mobile-network-error.png",
+    "desktop-network-error.png",
+    "desktop-mock-unreachable.png",
+    "mobile-mock-unreachable.png",
+    "mobile-long-text-refunds.png",
+    "mobile-not-found.png",
+    "desktop-not-found.png"
+  ],
+  "axe": {
+    "desktop-empty": [],
+    "desktop-receipt-and-refunds": [],
+    "mobile-receipt-and-refunds": [],
+    "mobile-long-text": [],
+    "mobile-network-error": [],
+    "mobile-not-found": []
+  },
+  "layout": {
+    "desktop": {
+      "width": 1280,
+      "scrollWidth": 1280,
+      "font": "\"IBM Plex Sans\", sans-serif",
+      "size": "16px",
+      "lineHeight": "25.6px",
+      "weights": ["400", "600"],
+      "navWidth": "240px",
+      "navPosition": "fixed",
+      "contentWidth": 720,
+      "loadedFonts": [
+        {
+          "family": "IBM Plex Sans",
+          "weight": "400"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "weight": "600"
+        },
+        {
+          "family": "IBM Plex Mono",
+          "weight": "400"
+        }
+      ]
+    },
+    "mobile": {
+      "width": 360,
+      "scrollWidth": 360
+    },
+    "mobileLongText": {
+      "width": 360,
+      "scrollWidth": 360
+    }
+  },
+  "print": {
+    "paper": {
+      "x": 337.640625,
+      "y": 0,
+      "width": 604.71875,
+      "height": 875.421875,
+      "top": 0,
+      "right": 942.359375,
+      "bottom": 875.421875,
+      "left": 337.640625
+    },
+    "availableHeightPx": 1001.5748031496064,
+    "visibleSections": ["receipt"],
+    "navigationDisplay": "none",
+    "qrWidth": "120.938px"
+  },
+  "functions": {
+    "sentRequestPreservedAfterEdit": true
+  }
+}
