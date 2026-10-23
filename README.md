@@ -1,9 +1,9 @@
 # gra-evat
 
-![License: MIT](https://img.shields.io/badge/license-MIT-173f35)
-![Node 20.19+](https://img.shields.io/badge/node-20.19%2B-173f35)
-![API v8.2](https://img.shields.io/badge/GRA_API-v8.2-c89d3c)
-![Status: local development](https://img.shields.io/badge/status-local_development-c89d3c)
+![License: MIT](https://img.shields.io/badge/license-MIT-111111?style=flat-square)
+![Node 20.19+](https://img.shields.io/badge/node-20.19%2B-111111?style=flat-square)
+![API v8.2](https://img.shields.io/badge/GRA_API-v8.2-6B6B6B?style=flat-square)
+![Status: local development](https://img.shields.io/badge/status-local_development-6B6B6B?style=flat-square)
 
 A typed TypeScript SDK, stateful mock server, CLI, and accessible web playground for Ghana E-VAT developers.
 
@@ -146,7 +146,7 @@ For Vercel, set the project root to `apps/playground`, enable access to workspac
 
 The optional [Dockerfile](packages/mock/Dockerfile) serves only the mock. Build from the repository root with `docker build -f packages/mock/Dockerfile -t gra-evat-mock .`. It contains no credentials and no persistent store. Configure network access for your deployment deliberately.
 
-Changesets manage versions and changelogs. The release workflow is prepared for an upstream repository with npm publishing credentials or trusted publishing, GitHub release permissions, provenance, and a protected `npm` environment. Configure repository metadata and verify package-name ownership before enabling release. No package or site is published as part of this build.
+Changesets manage versions and changelogs. The release workflow is prepared for an upstream repository with npm publishing credentials, GitHub release permissions, provenance, and a protected `npm` environment. Configure repository metadata and verify package-name ownership before enabling release. No package or site is published as part of this build.
 
 ## Non-goals
 

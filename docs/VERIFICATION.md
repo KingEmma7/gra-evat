@@ -1,6 +1,6 @@
 # Verification record
 
-Completed 23 October 2026 on macOS with pnpm 9.15.9. The final manual source was checked from a local Git clone using Node 20.20.2. The Node 22.23.4 toolchain, SDK and package checks also passed; the final manual production build and browser flows passed on the host runtime. GitHub Actions is configured for Node 20 and 22 on Ubuntu, but no remote workflow was dispatched because this repository has no upstream configured.
+Completed 23 October 2026 on macOS with pnpm 9.15.9. The final manual source was checked from a local Git clone using Node 20.20.2. The Node 22.23.4 toolchain, SDK and package checks also passed. The final redesigned manual was then built and its three browser flows were rerun successfully on Node 22.23.4 as well. GitHub Actions is configured for Node 20 and 22 on Ubuntu, but no remote workflow was dispatched because this repository has no upstream configured.
 
 ## Results
 
