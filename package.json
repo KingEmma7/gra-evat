@@ -1,0 +1,46 @@
+{
+  "name": "gra-evat",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20.19.0",
+    "pnpm": ">=9 <10"
+  },
+  "scripts": {
+    "dev": "pnpm build:packages && concurrently -k -n mock,playground \"pnpm --filter @gra-evat/mock dev\" \"pnpm --filter @gra-evat/playground dev\"",
+    "build:packages": "pnpm --filter @gra-evat/core build && pnpm --filter @gra-evat/mock build && pnpm --filter @gra-evat/cli build",
+    "build": "pnpm build:packages && pnpm --filter @gra-evat/playground build",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "pnpm build:packages && pnpm --filter @gra-evat/playground test:e2e",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint . --max-warnings 0 && prettier . --check",
+    "format": "prettier . --write",
+    "check:packages": "pnpm --filter @gra-evat/core check:package && pnpm --filter @gra-evat/mock check:package && pnpm --filter @gra-evat/cli check:package",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm build:packages && pnpm check:packages && changeset publish",
+    "check:size": "node scripts/bundle-size.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "tsup": "8.5.1",
+    "vitest": "4.1.12",
+    "@vitest/coverage-v8": "4.1.12",
+    "fast-check": "4.10.2",
+    "eslint": "10.13.0",
+    "typescript-eslint": "8.72.0",
+    "prettier": "3.9.10",
+    "@changesets/cli": "2.31.1",
+    "publint": "0.3.25",
+    "@arethetypeswrong/cli": "0.18.5",
+    "@playwright/test": "1.64.1",
+    "@axe-core/playwright": "4.14.0",
+    "@types/node": "22.20.5",
+    "concurrently": "9.2.5",
+    "tsx": "4.23.15",
+    "globals": "17.13.0"
+  },
+  "type": "module"
+}

@@ -1,0 +1,46 @@
+{
+  "name": "@gra-evat/cli",
+  "version": "0.1.0",
+  "description": "Validate GRA E-VAT JSON and calculate Ghana VAT locally",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "check:package": "publint && attw --pack"
+  },
+  "dependencies": {
+    "@gra-evat/core": "workspace:*"
+  },
+  "bin": {
+    "gra-evat": "./dist/index.js"
+  }
+}

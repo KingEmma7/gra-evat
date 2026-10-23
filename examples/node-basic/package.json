@@ -1,0 +1,12 @@
+{
+  "name": "@gra-evat/example-node-basic",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.mjs",
+    "start:cjs": "node index.cjs"
+  },
+  "dependencies": {
+    "@gra-evat/core": "workspace:*"
+  }
+}

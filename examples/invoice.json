@@ -1,0 +1,39 @@
+{
+  "currency": "GHS",
+  "exchangeRate": "1.0",
+  "invoiceNumber": "EXAMPLE-2026-001",
+  "totalLevy": 225,
+  "userName": "Demo cashier",
+  "flag": "INVOICE",
+  "calculationType": "EXCLUSIVE",
+  "totalVat": 675,
+  "transactionDate": "2026-01-01",
+  "totalAmount": 4500,
+  "totalExciseAmount": 0.0,
+  "businessPartnerName": "Cash customer",
+  "businessPartnerTin": "C0000000000",
+  "saleType": "NORMAL",
+  "discountType": "GENERAL",
+  "taxType": "STANDARD",
+  "discountAmount": 0,
+  "reference": "",
+  "groupReferenceId": "",
+  "purchaseOrderReference": "",
+  "items": [
+    {
+      "itemCode": "ABT301",
+      "itemCategory": "",
+      "expireDate": "",
+      "description": "Abrokyire Ntomah",
+      "quantity": "45",
+      "levyAmountA": 112.5,
+      "levyAmountB": 112.5,
+      "levyAmountD": 0,
+      "levyAmountE": 0,
+      "discountAmount": 0,
+      "exciseAmount": 0,
+      "batchCode": "",
+      "unitPrice": "100"
+    }
+  ]
+}

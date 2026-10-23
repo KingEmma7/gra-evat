@@ -1,0 +1,13 @@
+name: Feature request
+description: Suggest a focused improvement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Developer problem and proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Official contract evidence, if relevant
