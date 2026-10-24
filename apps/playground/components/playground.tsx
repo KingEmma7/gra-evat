@@ -1,5 +1,7 @@
 'use client';
 
+import '../lib/browser-validation';
+
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import {
   calculateInvoice,

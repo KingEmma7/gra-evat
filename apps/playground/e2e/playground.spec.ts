@@ -27,6 +27,17 @@ async function loadSample(page: Page) {
 }
 
 test('build an invoice, inspect integer taxes, issue a mock receipt', async ({ page }) => {
+  await page.addInitScript(() => {
+    const violations: { directive: string; blocked: string; disposition: string }[] = [];
+    Reflect.set(window, '__graCspViolations', violations);
+    document.addEventListener('securitypolicyviolation', (event) => {
+      violations.push({
+        directive: event.effectiveDirective,
+        blocked: event.blockedURI,
+        disposition: event.disposition,
+      });
+    });
+  });
   const apiRequests: string[] = [];
   page.on('request', (request) => {
     if (['fetch', 'xhr'].includes(request.resourceType())) apiRequests.push(request.url());
@@ -51,6 +62,7 @@ test('build an invoice, inspect integer taxes, issue a mock receipt', async ({ p
   await expect(page.getByLabel('SDK snippet code')).toContainText('client.invoice(invoice)');
   await checkAccessibility(page);
   expect(apiRequests).toEqual([]);
+  expect(await page.evaluate(() => Reflect.get(window, '__graCspViolations'))).toEqual([]);
 });
 
 test('fractional refunds preserve exact quantities and cancellation restores them', async ({
