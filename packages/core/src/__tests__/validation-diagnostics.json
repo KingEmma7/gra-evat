@@ -1,0 +1,195 @@
+[
+  {
+    "name": "required",
+    "result": [
+      {
+        "path": "$",
+        "expected": "string",
+        "message": "Required",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "type",
+    "result": [
+      {
+        "path": "$",
+        "expected": "string",
+        "received": null,
+        "message": "Expected string, received null",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "enum",
+    "result": [
+      {
+        "path": "$",
+        "expected": "Invalid enum value. Expected 'GHS' | 'USD', received 'ghs'",
+        "received": "ghs",
+        "message": "Invalid enum value. Expected 'GHS' | 'USD', received 'ghs'",
+        "hint": "Use exactly one of GHS, USD (case-sensitive)"
+      }
+    ]
+  },
+  {
+    "name": "enum-type",
+    "result": [
+      {
+        "path": "$",
+        "expected": "'GHS' | 'USD'",
+        "received": 5,
+        "message": "Expected 'GHS' | 'USD', received number",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "enum-required",
+    "result": [
+      {
+        "path": "$",
+        "expected": "'GHS' | 'USD'",
+        "message": "Required",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "literal",
+    "result": [
+      {
+        "path": "$",
+        "expected": "STANDARD",
+        "received": "special",
+        "message": "Invalid literal value, expected \"STANDARD\"",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "unknown",
+    "result": [
+      {
+        "path": "$",
+        "expected": "Unrecognized key(s) in object: 'extra'",
+        "received": {
+          "name": "Ada",
+          "extra": 1
+        },
+        "message": "Unrecognized key(s) in object: 'extra'",
+        "hint": "Remove undocumented fields: extra"
+      }
+    ]
+  },
+  {
+    "name": "short",
+    "result": [
+      {
+        "path": "$",
+        "expected": "String must contain at least 1 character(s)",
+        "received": "",
+        "message": "String must contain at least 1 character(s)",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "long",
+    "result": [
+      {
+        "path": "$",
+        "expected": "String must contain at most 2 character(s)",
+        "received": "abc",
+        "message": "String must contain at most 2 character(s)",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "array-short",
+    "result": [
+      {
+        "path": "$",
+        "expected": "Array must contain at least 1 element(s)",
+        "received": [],
+        "message": "Array must contain at least 1 element(s)",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "array-long",
+    "result": [
+      {
+        "path": "$",
+        "expected": "Array must contain at most 2 element(s)",
+        "received": ["a", "b", "c"],
+        "message": "Array must contain at most 2 element(s)",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "union",
+    "result": [
+      {
+        "path": "$",
+        "expected": "Invalid input",
+        "received": null,
+        "message": "Invalid input",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "regex",
+    "result": [
+      {
+        "path": "$",
+        "expected": "Invalid",
+        "received": "x",
+        "message": "Invalid",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "negative",
+    "result": [
+      {
+        "path": "$",
+        "expected": "Number must be greater than or equal to 0",
+        "received": -1,
+        "message": "Number must be greater than or equal to 0",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "nested",
+    "result": [
+      {
+        "path": "lines.0.code",
+        "expected": "string",
+        "received": null,
+        "message": "Expected string, received null",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  },
+  {
+    "name": "custom",
+    "result": [
+      {
+        "path": "$",
+        "expected": "Use the supplied custom message",
+        "received": "x",
+        "message": "Use the supplied custom message",
+        "hint": "Check the documented field format, casing and required value"
+      }
+    ]
+  }
+]

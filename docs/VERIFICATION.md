@@ -1,6 +1,8 @@
 # Verification and limits
 
-The repaired source was independently checked on 23 October 2026 using a fresh copy, Node 22.23.4, pnpm 9.15.9 and the frozen lockfile. This page summarizes measured local results. It does not claim hosted CI results, npm publication, a deployment or GRA certification.
+The original audit below used a fresh copy, Node 22.23.4, pnpm 9.15.9 and the frozen lockfile on 23 October 2026. These are measured local results, not a claim of GRA certification.
+
+On 24 October, the static-export and Zod 4.6.6 security changes passed a frozen install, production build, lint, types, 137 unit/property tests, and all three production browser cases. Updated core coverage is 390/395 statements (98.73%), 306/332 branches (92.16%), 80/80 functions and 361/361 lines (100%). The static preview regression passed; the core entry measures 43,754 bytes, or 10,866 bytes gzip, excluding external Zod. The registry audit reported zero advisories. Raw schema compatibility follows Zod 4, as described in [USAGE.md](USAGE.md). The independent runtime, tax-oracle, mutation, accessibility and performance evidence below retains its original provenance and was not all rerun for this dependency update.
 
 | Check                                                  | Measured result                                                                                                                            |
 | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -18,7 +20,7 @@ The repaired source was independently checked on 23 October 2026 using a fresh c
 
 Coverage measures `packages/core/src`, excluding tests and type-only files. It is not whole-repository coverage. The independent oracle verifies the documented local rounding policy. It does not establish an official GRA rounding rule. The Docker and portable runtime runs exercised mock invoice/refund calls, headers, retries, typed errors and AbortSignal timeouts.
 
-The exact README installation and development walkthrough passed at ports 3000 and 8787, including the synthetic invoice and CommonJS example. Clipboard denial and QR encoding failure recovered in browser fault checks. The production notice file matched the generated attribution file. Later changes to public documentation do not alter the tested runtime source.
+The exact README installation and development walkthrough passed at ports 3000 and 8787, including the synthetic invoice and CommonJS example. Clipboard denial and QR encoding failure recovered in browser fault checks. The production notice file matched the generated attribution file. The later dependency and static-export changes are covered by the separate 24 October checks above.
 
 ## Reproduce the repository checks
 

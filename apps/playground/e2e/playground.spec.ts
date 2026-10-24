@@ -27,6 +27,10 @@ async function loadSample(page: Page) {
 }
 
 test('build an invoice, inspect integer taxes, issue a mock receipt', async ({ page }) => {
+  const apiRequests: string[] = [];
+  page.on('request', (request) => {
+    if (['fetch', 'xhr'].includes(request.resourceType())) apiRequests.push(request.url());
+  });
   await page.goto('/');
   await expect(page.getByText('In-browser mock is ready')).toBeVisible();
   await expect(page.getByText('No line items.')).toBeVisible();
@@ -46,6 +50,7 @@ test('build an invoice, inspect integer taxes, issue a mock receipt', async ({ p
   await expect(page.getByLabel('Invoice response JSON code')).toContainText('MOCK');
   await expect(page.getByLabel('SDK snippet code')).toContainText('client.invoice(invoice)');
   await checkAccessibility(page);
+  expect(apiRequests).toEqual([]);
 });
 
 test('fractional refunds preserve exact quantities and cancellation restores them', async ({

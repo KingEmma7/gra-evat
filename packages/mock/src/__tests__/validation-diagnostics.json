@@ -1,0 +1,35 @@
+[
+  {
+    "name": "callback",
+    "path": "invoice/callback",
+    "input": {
+      "reference": "",
+      "invoiceNumber": "INV-1",
+      "flag": "invoice",
+      "extra": true
+    },
+    "status": 400,
+    "error": "Validation_error: flag: Invalid enum value. Expected 'INVOICE' | 'PURCHASE' | 'REFUND' | 'PARTIAL_REFUND' | 'PURCHASE_RETURN', received 'invoice'; body: Unrecognized key(s) in object: 'extra'"
+  },
+  {
+    "name": "cancellation",
+    "path": "cancellation",
+    "input": {},
+    "status": 400,
+    "error": "Validation_error: invoiceNumber: Required; reference: Required; userName: Required; flag: Required; transactionDate: Required; totalAmount: Invalid input"
+  },
+  {
+    "name": "inventory",
+    "path": "inventory",
+    "input": {
+      "inventoryDate": "2026-01-01",
+      "inventories": [
+        {
+          "code": null
+        }
+      ]
+    },
+    "status": 400,
+    "error": "Validation_error: inventories.0.code: Expected string, received null; inventories.0.description: Required; inventories.0.quantity: Invalid input; inventories.0.batchCode: Required; inventories.0.unitPrice: Invalid input; inventories.0.expiryDate: Required"
+  }
+]

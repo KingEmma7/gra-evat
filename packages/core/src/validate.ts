@@ -15,13 +15,85 @@ import {
 import { ValidationError, type Result, type ValidationIssue } from './errors';
 import { InvoiceSchema, type Invoice } from './schemas';
 
-function atPath(input: unknown, path: readonly (string | number)[]): unknown {
+function atPath(input: unknown, path: readonly PropertyKey[]): unknown {
   let current: unknown = input;
   for (const key of path) {
     if (typeof current !== 'object' || current === null) return undefined;
     current = Reflect.get(current, key);
   }
   return current;
+}
+
+const defaultEnglishError = z.locales.en().localeError;
+const fieldHint = 'Check the documented field format, casing and required value';
+
+function receivedType(value: unknown): string {
+  if (value === null) return 'null';
+  if (Array.isArray(value)) return 'array';
+  if (typeof value === 'number' && Number.isNaN(value)) return 'nan';
+  if (value instanceof Date) return 'date';
+  return typeof value;
+}
+
+// Keep the SDK's existing English diagnostics across Zod versions. Only translate
+// default messages for checks used by our exported schemas; preserve custom errors.
+function schemaDiagnostic(
+  issue: z.ZodIssue,
+  received: unknown,
+): Omit<ValidationIssue, 'path' | 'received'> {
+  let expected = 'expected' in issue ? String(issue.expected) : undefined;
+  let hint = fieldHint;
+  let message = issue.message;
+  const native = defaultEnglishError(
+    issue.code === 'invalid_type' ? { ...issue, input: received } : { ...issue, input: undefined },
+  );
+  const isDefault = message === (typeof native === 'string' ? native : native?.message);
+  if (issue.code === 'invalid_value') {
+    if (issue.values.length === 1) {
+      expected = String(issue.values[0]);
+      if (isDefault)
+        message = `Invalid literal value, expected ${JSON.stringify(typeof issue.values[0] === 'bigint' ? String(issue.values[0]) : issue.values[0])}`;
+    } else if (issue.values.every((value) => typeof value === 'string')) {
+      const options = issue.values.map((value) => `'${String(value)}'`).join(' | ');
+      if (typeof received === 'string') {
+        hint = `Use exactly one of ${issue.values.join(', ')} (case-sensitive)`;
+        if (isDefault) message = `Invalid enum value. Expected ${options}, received '${received}'`;
+      } else {
+        expected = options;
+        if (isDefault)
+          message =
+            received === undefined
+              ? 'Required'
+              : `Expected ${options}, received ${receivedType(received)}`;
+      }
+    }
+  } else if (issue.code === 'unrecognized_keys') {
+    hint = `Remove undocumented fields: ${issue.keys.join(', ')}`;
+    if (isDefault)
+      message = `Unrecognized key(s) in object: ${issue.keys.map((key) => `'${key}'`).join(', ')}`;
+  } else if (isDefault) {
+    if (issue.code === 'invalid_type') {
+      message =
+        received === undefined
+          ? 'Required'
+          : `Expected ${issue.expected}, received ${receivedType(received)}`;
+    } else if (issue.code === 'too_small' || issue.code === 'too_big') {
+      const small = issue.code === 'too_small';
+      const limit = small ? issue.minimum : issue.maximum;
+      if (issue.origin === 'string' || issue.origin === 'array') {
+        const subject = issue.origin === 'string' ? 'String' : 'Array';
+        const unit = issue.origin === 'string' ? 'character(s)' : 'element(s)';
+        const relation = issue.exact ? 'exactly' : small ? 'at least' : 'at most';
+        message = `${subject} must contain ${relation} ${limit} ${unit}`;
+      } else if (issue.origin === 'number') {
+        const relation = small ? 'greater than' : 'less than';
+        message = `Number must be ${issue.exact ? 'exactly equal to' : `${relation}${issue.inclusive ? ' or equal to' : ''}`} ${limit}`;
+      }
+    } else if (issue.code === 'invalid_format' && issue.format === 'regex') {
+      message = 'Invalid';
+    }
+  }
+  return { expected: expected ?? message, message, hint };
 }
 
 /** Convert all schema errors into readable, actionable diagnostics.
@@ -32,18 +104,31 @@ function atPath(input: unknown, path: readonly (string | number)[]): unknown {
  * ```
  */
 export function schemaIssues(error: z.ZodError, input: unknown): ValidationIssue[] {
-  return error.issues.map((issue) => ({
-    path: issue.path.join('.') || '$',
-    expected: 'expected' in issue ? String(issue.expected) : issue.message,
-    received: atPath(input, issue.path),
-    message: issue.message,
-    hint:
-      issue.code === 'invalid_enum_value'
-        ? `Use exactly one of ${issue.options.join(', ')} (case-sensitive)`
-        : issue.code === 'unrecognized_keys'
-          ? `Remove undocumented fields: ${issue.keys.join(', ')}`
-          : 'Check the documented field format, casing and required value',
-  }));
+  // Zod 4 can append a length issue after rejecting a different input type.
+  // Index JSON field paths once to preserve the original diagnostic in linear time.
+  const jsonPath = (path: PropertyKey[]) =>
+    path.some((part) => typeof part === 'symbol') ? undefined : JSON.stringify(path);
+  const typeErrorPaths = new Set(
+    error.issues
+      .filter((issue) => issue.code === 'invalid_type')
+      .map((issue) => jsonPath(issue.path)),
+  );
+  typeErrorPaths.delete(undefined);
+  const issues = error.issues.filter(
+    (issue) =>
+      !(
+        (issue.code === 'too_small' || issue.code === 'too_big') &&
+        typeErrorPaths.has(jsonPath(issue.path))
+      ),
+  );
+  return issues.map((issue) => {
+    const received = atPath(input, issue.path);
+    return {
+      path: issue.path.map(String).join('.') || '$',
+      received,
+      ...schemaDiagnostic(issue, received),
+    };
+  });
 }
 
 /** Validate any exported operation schema and return the SDK result union.

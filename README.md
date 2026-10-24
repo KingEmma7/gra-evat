@@ -6,6 +6,8 @@
 
 A typed TypeScript SDK, stateful mock server, CLI, and accessible web playground for Ghana E-VAT developers.
 
+**[Open the live playground](https://gra-evat.etagbor.workers.dev/)** to try the in-browser mock without installing anything. Receipts and signatures are simulated; no real tax invoice is submitted.
+
 Build an invoice against a local simulator, inspect the exact v8.2 JSON, then configure the SDK with your GRA endpoint and credentials. All demo receipts carry fake signatures. This project is not affiliated with GRA, is not tax advice, and must be verified against official GRA documentation.
 
 The npm packages have **not** been published. Use the workspace commands below or install a [locally packed archive](docs/USAGE.md#sdk). Public source availability does not imply npm publication or GRA certification.

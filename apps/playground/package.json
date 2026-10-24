@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "node ../../scripts/third-party-notices.mjs && next dev --hostname 127.0.0.1",
-    "build": "node ../../scripts/third-party-notices.mjs && next build",
-    "start": "next start --hostname 127.0.0.1",
+    "build": "node ../../scripts/third-party-notices.mjs && next build && node ../../scripts/playground-headers.mjs",
+    "start": "node ../../scripts/serve-playground.mjs",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test"
   },
