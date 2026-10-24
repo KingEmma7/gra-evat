@@ -4,6 +4,8 @@ export default tseslint.config(
   {
     ignores: [
       '**/dist/**',
+      '**/out/**',
+      '**/.wrangler/**',
       '**/.next/**',
       '**/node_modules/**',
       '**/coverage/**',

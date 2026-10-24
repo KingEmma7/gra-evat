@@ -1,0 +1,11 @@
+{
+  "name": "gra-evat",
+  "compatibility_date": "2026-10-13",
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./apps/playground/out",
+    "html_handling": "force-trailing-slash",
+    "not_found_handling": "404-page",
+  },
+}

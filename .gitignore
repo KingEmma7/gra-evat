@@ -11,3 +11,6 @@ test-results/
 .DS_Store
 
 apps/playground/public/THIRD_PARTY_NOTICES.txt
+
+.wrangler/
+apps/playground/out/

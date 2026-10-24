@@ -22,7 +22,8 @@
     "version-packages": "changeset version",
     "release": "pnpm build:packages && pnpm check:packages && changeset publish",
     "check:size": "node scripts/bundle-size.mjs",
-    "cli": "node packages/cli/dist/index.js"
+    "cli": "node packages/cli/dist/index.js",
+    "test:static": "node --test scripts/serve-playground.test.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3",
