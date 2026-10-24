@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability privately
+    url: https://github.com/KingEmma7/gra-evat/security/advisories/new
+    about: Use the private reporting form. Keep credentials and personal records out of public issues.
+  - name: Contribution guide
+    url: https://github.com/KingEmma7/gra-evat/blob/main/CONTRIBUTING.md
+    about: Local setup, small contributions, and checks for a pull request.

@@ -43,5 +43,11 @@
     "tsx": "4.23.15",
     "globals": "17.13.0"
   },
-  "type": "module"
+  "type": "module",
+  "pnpm": {
+    "overrides": {
+      "next>postcss": "8.5.31",
+      "esbuild@<0.28.1": "0.28.1"
+    }
+  }
 }

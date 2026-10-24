@@ -3,6 +3,8 @@ import { z } from 'zod';
 import {
   createInvoice,
   guardIdentity,
+  NoteSchema,
+  StatementOfAccountSchema,
   parseMoney,
   pesewas,
   schemaIssues,
@@ -13,7 +15,7 @@ import {
   type BusinessIdentity,
   type Invoice,
 } from '../index';
-import { sampleInvoice } from './fixtures';
+import { note, sampleInvoice, statement } from './fixtures';
 
 function issuePaths(invoice: unknown): string[] {
   const result = validateInvoice(invoice);
@@ -282,6 +284,30 @@ describe('exact wire validation', () => {
     expect(
       validateSchema(z.object({ nested: z.object({ count: z.number() }) }), { nested: null }).ok,
     ).toBe(false);
+  });
+});
+
+describe('auxiliary exchange rates', () => {
+  it.each([0, '0', -1, '-1'])('rejects non-positive rate %s in notes and statements', (rate) => {
+    expect(NoteSchema.safeParse({ ...note, exchangeRate: rate }).success).toBe(false);
+    expect(StatementOfAccountSchema.safeParse({ ...statement, exchangeRate: rate }).success).toBe(
+      false,
+    );
+    expect(
+      StatementOfAccountSchema.safeParse({
+        ...statement,
+        groupInvoiceLines: statement.groupInvoiceLines.map((line) => ({
+          ...line,
+          exchangeRate: rate,
+        })),
+      }).success,
+    ).toBe(false);
+  });
+  it.each([1, '1', '0.125'])('preserves positive decimal rate %s', (rate) => {
+    expect(NoteSchema.parse({ ...note, exchangeRate: rate }).exchangeRate).toBe(rate);
+    expect(StatementOfAccountSchema.parse({ ...statement, exchangeRate: rate }).exchangeRate).toBe(
+      rate,
+    );
   });
 });
 

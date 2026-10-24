@@ -183,6 +183,9 @@ export function calculateInvoice(
   calculationType: CalculationType,
   rules: TaxRules = GHANA_2026,
 ): InvoiceTotals {
+  assertRules(rules);
+  if (calculationType !== 'EXCLUSIVE' && calculationType !== 'INCLUSIVE')
+    throw new RangeError('calculationType must be INCLUSIVE or EXCLUSIVE');
   if (items.length > LIMITS.maxItems)
     throw new RangeError(`At most ${LIMITS.maxItems} lines are supported`);
   const lines = items.map((item) => calculateLine(item, calculationType, rules));

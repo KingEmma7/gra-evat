@@ -1,11 +1,39 @@
-# Contributing
+# Contributing to gra-evat
 
-Install Node 20.19+ and pnpm 9.15.9. Run `pnpm install`, `pnpm build:packages`, and `pnpm dev`.
+Start with a [good first issue](https://github.com/KingEmma7/gra-evat/labels/good%20first%20issue), improve an example, or report a reproducible problem. Comment on an issue with your proposed scope so others can avoid duplicate work. You can open a small documentation pull request directly.
 
-Before a pull request, run `pnpm lint`, `pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, `pnpm test:e2e`, and `pnpm check:packages`. Install Chromium with `pnpm exec playwright install chromium` for browser tests.
+## Local setup
 
-Every API change must link to the v8.2 Postman contract or official GRA documentation. Preserve exact field casing, endpoint spelling and response structure. Add an explicit assumption when evidence is incomplete. Add tests for changed arithmetic, validation, retry or refund behavior. Keep money in integer pesewas and use the shared browser/server mock logic.
+Use Node 20.19+ and pnpm 9.15.9, as declared in `package.json`.
 
-Use synthetic identities and the literal `mock` key in fixtures. Never include live credentials, real invoices or personal taxpayer data. Report security problems as described in SECURITY.md.
+```sh
+pnpm install --frozen-lockfile
+pnpm dev
+```
 
-Add a Changeset with `pnpm changeset` for public package changes. Keep public TSDoc examples runnable. Submit a focused pull request describing the behavior, contract evidence, validation and remaining gaps.
+The playground opens at http://localhost:3000 and the mock at http://localhost:8787. Stop these processes before browser tests if their ports conflict. The [README](README.md#ten-minute-quickstart) includes a sample invoice walkthrough.
+
+## Make a focused change
+
+Use synthetic identities and the literal `mock` key in examples and fixtures. Never submit live credentials, real invoices or personal taxpayer data. Report security issues through [private reporting](SECURITY.md).
+
+API changes need evidence from the [v8.2 contract](docs/API.md) or an official GRA source. Preserve exact field casing, endpoint spelling and response structure. Document uncertain choices in [ASSUMPTIONS.md](docs/ASSUMPTIONS.md). Add a regression for changed arithmetic, validation, retry or refund behavior. Keep money in integer pesewas and reuse the shared browser/server mock logic.
+
+## Check your change
+
+For prose-only changes, check links and run Prettier on the files you edited. For a code change, run the affected tests first, then the project checks:
+
+```sh
+pnpm build:packages
+pnpm lint
+pnpm typecheck
+pnpm test:coverage
+pnpm build
+pnpm exec playwright install chromium
+pnpm test:e2e
+pnpm check:packages
+```
+
+`test:coverage` already runs the unit suite, so there is no need to run `pnpm test` immediately before it. Package declarations must be built before typechecking a fresh installation. See [VERIFICATION.md](docs/VERIFICATION.md) for coverage scope and runtime limits.
+
+Add a Changeset with `pnpm changeset` for public package changes. Keep TSDoc examples runnable. A pull request should explain the problem, the resulting behavior, contract evidence when relevant, checks actually run and any remaining gaps. Include a synthetic screenshot for a visual change. Follow the [code of conduct](CODE_OF_CONDUCT.md).

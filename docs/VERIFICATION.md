@@ -1,46 +1,32 @@
-# Verification record
+# Verification and limits
 
-Completed 23 October 2026 on macOS with pnpm 9.15.9. The final manual source was checked from a local Git clone using Node 20.20.2. The Node 22.23.4 toolchain, SDK and package checks also passed. The final redesigned manual was then built and its three browser flows were rerun successfully on Node 22.23.4 as well. GitHub Actions is configured for Node 20 and 22 on Ubuntu, but no remote workflow was dispatched because this repository has no upstream configured.
+The repaired source was independently checked on 23 October 2026 using a fresh copy, Node 22.23.4, pnpm 9.15.9 and the frozen lockfile. This page summarizes measured local results. It does not claim hosted CI results, npm publication, a deployment or GRA certification.
 
-## Results
+| Check                                                  | Measured result                                                                                                                            |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Installation, lint, strict types and production builds | Passed; ESM, CommonJS, declarations and Next.js output                                                                                     |
+| Unit and property tests                                | 112 tests in four files passed                                                                                                             |
+| Core coverage                                          | Statements 328/331 (99.09%); branches 245/257 (95.33%); functions 70/70 and lines 305/305 (100%)                                           |
+| Production browser flows                               | 3/3 passed for invoice, refund and error flows                                                                                             |
+| Package consumers                                      | publint and Are the Types Wrong passed; packed ESM/CJS consumers passed on Node 20.20.2 and 22.23.4, including strict NodeNext compilation |
+| Independent checks                                     | 31 public contract-example schema checks, 3,002 Decimal-oracle cases and five killed critical mutations                                    |
+| Portable runtimes                                      | 12 checks each on Bun 1.4.4, Deno 2.9.6, Cloudflare workerd 2026-10-23 and the non-root Linux ARM64 Docker mock                            |
+| Interface                                              | 34 second-pass axe scans with zero reported violations or document overflow at 320, 360, 768 and 1440px                                    |
+| Keyboard and zoom                                      | All 50 empty-state and 124 populated-state controls reached; native 200% Chrome zoom passed five sections                                  |
+| Mobile Lighthouse                                      | One localhost run: Performance 98, Accessibility 100, Best Practices 96, SEO 100                                                           |
+| Core ESM entry                                         | 40,553 bytes, 10,008 bytes gzip, excluding external Zod                                                                                    |
 
-| Check                              | Result                                                                                                   |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Frozen dependency install in clone | Passed, exact lockfile, cached packages                                                                  |
-| ESLint and Prettier                | Passed, zero errors or differences                                                                       |
-| Strict TypeScript                  | Passed for all packages and playground                                                                   |
-| Unit and property tests            | 104 passed across four files (76 core, 28 mock)                                                          |
-| Core line coverage                 | 100%, 302 of 302 lines                                                                                   |
-| Core branch coverage               | 95.25%, 241 of 253 branches                                                                              |
-| Core statement coverage            | 99.08%, 324 of 327 statements                                                                            |
-| Core function coverage             | 100%, 70 of 70 functions                                                                                 |
-| Production builds                  | ESM, CJS, both declaration formats, Next.js build passed                                                 |
-| Browser smoke flows                | 3 passed against the final production manual                                                             |
-| Accessibility                      | No serious or critical violations in smoke flows; six separate design scans returned no violations       |
-| Package validation                 | publint and Are the Types Wrong passed for core, mock and CLI                                            |
-| Standalone package                 | Core packed with pnpm, installed in a temporary app; ESM invoice and CommonJS calculator examples passed |
-| CLI                                | Sample JSON validation and inclusive GHS 100 calculator passed                                           |
-| API trace review                   | Final request keys, paths, enums, response envelopes and documented typos checked against Postman v8.2   |
-| Sensitive example keys             | No Postman security key found in distributed source                                                      |
-| Core ESM size                      | 40,389 bytes; gzip 10,017 bytes (9.78 KiB), external Zod excluded                                        |
-| Screenshots                        | 53 captured, including all fourteen operation pairs                                                      |
+Coverage measures `packages/core/src`, excluding tests and type-only files. It is not whole-repository coverage. The independent oracle verifies the documented local rounding policy. It does not establish an official GRA rounding rule. The Docker and portable runtime runs exercised mock invoice/refund calls, headers, retries, typed errors and AbortSignal timeouts.
 
-The property suite includes 3,000 inclusive/exclusive round trips and 500 random invoices. Test cases cover half-pesewa rounding, uneven inclusive division, zero and negative quantities, large quantities, zero/1,000/1,001 lines, duplicates, wrong-case enums, TIN policies, optional customer handling, supported currencies, identity changes, dates, retries, Retry-After, timeout bounds and malformed responses.
+The exact README installation and development walkthrough passed at ports 3000 and 8787, including the synthetic invoice and CommonJS example. Clipboard denial and QR encoding failure recovered in browser fault checks. The production notice file matched the generated attribution file. Later changes to public documentation do not alter the tested runtime source.
 
-Mock cases cover each SDK operation, cumulative quantity and money caps, refund of a cancelled sale, partial refunds and cancellations, purchase returns, malformed input, authentication, browser fetch, injected failures, abort and deterministic signing. Independent partial-rounding over-credit and under-credit cases are rejected before mutation.
-
-The browser flows cover invoice composition, inclusive/exclusive calculation, QR receipt, exact submitted request/response, SDK copying, fractional 0.3 to 0.1 plus 0.2 refunds, cancellation, keyboard focus, HTTP 500, unreachable local server, recovery and long text at 320px. A separate audit confirms 360px layouts, loading, HTTP 429, network errors, missing pages and print. The final manual was also walked with the keyboard in the in-app browser through sample loading and invoice submission.
-
-The print check verifies a two-item receipt at 875px within A4's available 1002px height, with a 32mm QR image. See [DESIGN.md](DESIGN.md), [DESIGN-AUDIT.json](DESIGN-AUDIT.json), and the screenshots/ directory for visual evidence.
-
-## Reproduce
+## Reproduce the repository checks
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm build:packages
 pnpm lint
 pnpm typecheck
-pnpm test
 pnpm test:coverage
 pnpm build
 pnpm exec playwright install chromium
@@ -50,12 +36,14 @@ node scripts/verify-packed.mjs
 pnpm check:size
 ```
 
-Use `CI=1 PLAYWRIGHT_PORT=3010 pnpm test:e2e` after building when an existing preview occupies port 3000. CI mode tests the production server; local mode can reuse a development server.
+The coverage command runs the unit suite. Browser tests require Chromium. Check the relevant [CI workflow](../.github/workflows/ci.yml) for the maintained automation. Independent runtime/oracle checks above describe the recorded audit and are not all part of that workflow.
 
-## Assumptions and remaining gaps
+## Limits to retain
 
-All nineteen local assumptions are listed in [ASSUMPTIONS.md](ASSUMPTIONS.md). The principal unresolved areas are GRA's precise rounding and refund-allocation rules, TIN syntax, SELECTIVE discount semantics, specialized-category tax bases, historical statutory recomputation, and missing cancellation/note/account response examples. Those gaps remain explicit in types, policy constants, validation scope and mock-only acknowledgements.
+- [ASSUMPTIONS.md](ASSUMPTIONS.md) records rounding, refund allocation, TIN syntax, SELECTIVE discounts, specialized bases, historical recomputation and undocumented responses. Public examples and the mock do not prove live GRA acceptance.
+- No live GRA transaction or certification was attempted. The implementation guide contains a one-pesewa component-sum discrepancy, discussed in [TAX-RULES.md](TAX-RULES.md).
+- Native spoken screen readers, physical phones, other operating systems, other architectures and every edge platform were not individually tested. Automated accessibility checks do not establish universal conformance.
+- The Lighthouse result is one simulated-mobile localhost run, not a low-end-device benchmark. A separate 30-case, 1,000-line calculation/validation probe measured median 32.04ms and maximum 68.47ms; it did not render 1,000 builder rows.
+- Real credentials belong on the integrator's server. Review [SECURITY.md](../SECURITY.md), [API.md](API.md) and [DEPLOYMENT.md](DEPLOYMENT.md) before integration or hosting. npm release and package-name ownership are separate from source publication.
 
-No live GRA transaction or certification was attempted. Signatures, receipt numbers and identity lookup records are mock values. Bun, Deno and individual edge-provider runtimes were not executed; their portability is based on the core's Web APIs and injected-fetch tests, with actual Node and browser runs recorded above.
-
-The Dockerfile is supplied but was not built because a Docker daemon was unavailable. Vercel deployment and npm publication were not performed. Release remains disabled until maintainers configure package ownership, repository metadata, npm authentication and the protected release environment. Deployment settings and local font licenses are in [DEPLOYMENT.md](DEPLOYMENT.md).
+Older screenshots and design records retain their original provenance. The detailed local audit records are archived separately and are not required to use or contribute to the repository.

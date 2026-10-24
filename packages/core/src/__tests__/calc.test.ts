@@ -156,6 +156,19 @@ describe('2026 levy calculator', () => {
         .total,
     ).toBe(100);
   });
+  it('validates calculation policy even when an invoice has no lines', () => {
+    expect(() => calculateInvoice([], 'invalid' as CalculationType)).toThrow('calculationType');
+    expect(() => calculateInvoice([], 'EXCLUSIVE', { ...GHANA_2026, vatBps: -1 })).toThrow(
+      'basis points',
+    );
+    expect(() =>
+      calculateInvoice([], 'EXCLUSIVE', {
+        ...GHANA_2026,
+        method: 'CASCADE',
+      } as unknown as TaxRules),
+    ).toThrow('policy');
+    expect(calculateInvoice([], 'INCLUSIVE').total).toBe(0);
+  });
   it('property: all component totals reconcile and inclusive/exclusive round trips stay within one pesewa', () => {
     fc.assert(
       fc.property(fc.integer({ min: 0, max: 1000000000 }), (amount) => {

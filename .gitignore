@@ -9,3 +9,5 @@ test-results/
 *.tgz
 *.tsbuildinfo
 .DS_Store
+
+apps/playground/public/THIRD_PARTY_NOTICES.txt

@@ -10,6 +10,7 @@ const decimal = z.union([
     .regex(/^\d+(?:\.\d+)?$/)
     .refine((value) => Number.isFinite(Number(value)), 'Use a finite numeric value'),
 ]);
+const exchangeRate = decimal.refine((value) => Number(value) > 0, 'Exchange rate must be positive');
 const money = decimal.refine(
   (value) => /^\d+(?:\.\d{1,2})?$/.test(String(value)),
   'Use a non-negative amount with at most 2 decimal places',
@@ -71,7 +72,7 @@ export const LineItemSchema = z
 export const InvoiceSchema = z
   .object({
     currency: CurrencySchema,
-    exchangeRate: decimal.refine((value) => Number(value) > 0, 'Exchange rate must be positive'),
+    exchangeRate,
     invoiceNumber: text(100),
     totalLevy: money,
     userName: text(100),
@@ -115,7 +116,7 @@ export const NoteSchema = z
   .object({
     noteNumber: text(100),
     currency: CurrencySchema,
-    exchangeRate: decimal,
+    exchangeRate,
     noteAmount: money,
     calculationType: CalculationTypeSchema,
     businessPartnerName: text(100),
@@ -145,7 +146,7 @@ export const NoteSchema = z
 export const StatementOfAccountSchema = z
   .object({
     currency: CurrencySchema,
-    exchangeRate: decimal,
+    exchangeRate,
     totalVat: decimal,
     totalAmount: decimal,
     totalLevies: decimal,
@@ -160,7 +161,7 @@ export const StatementOfAccountSchema = z
         z
           .object({
             currency: CurrencySchema,
-            exchangeRate: decimal,
+            exchangeRate,
             calculationType: CalculationTypeSchema,
             invoiceNumber: text(100),
             reference: optionalText(50),
