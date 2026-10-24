@@ -35,9 +35,11 @@ else console.error(result.error);
 // const receipt = await client.throwing.invoice({ ...invoice, invoiceNumber: 'POS-0002' });
 ```
 
-The measured core ESM entry is **40,553 bytes**, or **10,008 bytes gzipped** (9.77 KiB), excluding external Zod.
+Run `pnpm check:size` for the current core ESM and gzip sizes, excluding external Zod.
 
-Core has one runtime dependency, Zod 3. Money stays in branded integer pesewas; quantity multiplication and rates use integer rational arithmetic. `formatMoney` returns an exact decimal string at the API boundary. Monetary JSON accepts the documented numeric values and numeric strings. Use `Intl.NumberFormat('en-GH', { style: 'currency', currency: 'GHS' })` for display only.
+Core has one runtime dependency, Zod 4.6.6. Money stays in branded integer pesewas; quantity multiplication and rates use integer rational arithmetic. `formatMoney` returns an exact decimal string at the API boundary. Monetary JSON accepts the documented numeric values and numeric strings. Use `Intl.NumberFormat('en-GH', { style: 'currency', currency: 'GHS' })` for display only.
+
+Exported schemas and the schema arguments to `validateSchema` and `schemaIssues` now use Zod 4. Raw `.safeParse().error.issues` codes, custom schemas and Zod methods follow the [Zod 4 migration guide](https://zod.dev/v4/changelog). The SDK preserves its `ValidationIssue` fields and the tested JSON diagnostics, including mock HTTP validation text. JavaScript `Infinity` remains invalid but now aborts numeric unions earlier, so its diagnostic text can differ; JSON cannot represent it. The SDK's constrained arrays reject excess items before traversing elements. Apply explicit size limits to any custom collections.
 
 See [API.md](API.md) for paths, fields and operation names, [TAX-RULES.md](TAX-RULES.md) for the versioned rules and rounding policy, and [ASSUMPTIONS.md](ASSUMPTIONS.md) for every local policy and undocumented response.
 

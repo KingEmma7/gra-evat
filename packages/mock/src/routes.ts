@@ -6,6 +6,7 @@ import {
   NoteSchema,
   StatementOfAccountSchema,
   validateInvoice,
+  schemaIssues,
 } from '@gra-evat/core';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
@@ -40,16 +41,16 @@ export interface MockOptions {
 interface RuntimeSchema<T> {
   safeParse(
     value: unknown,
-  ):
-    | { success: true; data: T }
-    | { success: false; error: { issues: { path: (string | number)[]; message: string }[] } };
+  ): { success: true; data: T } | { success: false; error: Parameters<typeof schemaIssues>[0] };
 }
 
 function parse<T>(schema: RuntimeSchema<T>, value: unknown): T {
   const parsed = schema.safeParse(value);
   if (!parsed.success) {
     throw new MockStoreError(
-      `Validation_error: ${parsed.error.issues.map((issue) => `${issue.path.join('.') || 'body'}: ${issue.message}`).join('; ')}`,
+      `Validation_error: ${schemaIssues(parsed.error, value)
+        .map((issue) => `${issue.path === '$' ? 'body' : issue.path}: ${issue.message}`)
+        .join('; ')}`,
     );
   }
   return parsed.data;
