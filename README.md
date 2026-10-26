@@ -14,6 +14,8 @@ The npm packages have **not** been published. Use the workspace commands below o
 
 The web interface is a monochrome reference manual. It uses local IBM Plex fonts, a 240px desktop navigation column, and a 720px content column. Every documented operation has independently copyable request and response examples, displayed side by side on desktop. See [DESIGN.md](docs/DESIGN.md) for screenshots and the layout audit.
 
+Merged pull requests deploy automatically after the exact main commit passes CI. See the [deployment guide](docs/DEPLOYMENT.md#automatic-deployment-after-merge) for deployment checks and rollback.
+
 ## Ten-minute quickstart
 
 Requirements: Node 20.19+ (or a compatible newer LTS) and pnpm 9.15.9. With Corepack, run `corepack prepare pnpm@9.15.9 --activate`. Alternatively install `pnpm@9.15.9` with npm.
