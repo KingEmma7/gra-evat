@@ -2,6 +2,22 @@
 
 The public playground is [gra-evat.etagbor.workers.dev](https://gra-evat.etagbor.workers.dev/). The npm packages remain unpublished.
 
+## Automatic deployment after merge
+
+Maintainers review and merge pull requests into protected `main`. After the exact merged commit passes every required CI verification job, the separate deployment job publishes that run's static artifact. gra-evat uses the Node 22 artifact after both supported Node versions pass. No application build or dependency lifecycle script runs with Cloudflare credentials.
+
+The `production` GitHub environment permits only the `main` branch. Its `CLOUDFLARE_API_TOKEN` secret has Editor access to this existing Worker; `CLOUDFLARE_ACCOUNT_ID` is an environment variable. Pull-request verification has no access to that environment or token. Main protection applies to administrators; the solo maintainer can merge their own reviewed PR, so this does not promise an independent second approver.
+
+Before publishing, the job verifies the artifact's commit, run identity and file hashes, then checks that the commit is still current `main` and belongs to a merged PR. Deployments run one at a time. Older successful runs are skipped if main has advanced. The deployment is not cancelled midway by a newer CI run. A main change during the final publish can briefly leave the preceding verified revision live until the newer revision passes and deploys.
+
+The public `/__deployment.json` marker identifies the deployed commit and CI run. After publishing, CI checks that marker, the generated home-page security headers and a real 404 response. A failed live check marks the deployment job unsuccessful; it does not silently roll back or claim the previous site is still active. The artifact is retained for seven days. To retry a failed deployment, choose **Re-run all jobs** for the eligible main commit. **Re-run failed jobs** alone cannot reuse an artifact from an earlier run attempt. Expired artifacts also require a complete rerun.
+
+## Rollback
+
+For a routine rollback, merge a revert PR and let its successful CI publish normally. For an emergency manual rollback, pause this repository's CI workflow in GitHub Actions and wait for all active deployment jobs to finish. An authorized maintainer can inspect `wrangler deployments list` and run `pnpm dlx wrangler@4.148.0 rollback <VERSION_ID>` from this repository, or select the verified version in the Cloudflare dashboard. Only the 100 most recent published versions are eligible. Record the chosen version and check the live marker, security headers and routes. Re-enable CI and merge the corrective PR when ready; the next successful main deployment replaces the rollback.
+
+See [Cloudflare's rollback guide](https://developers.cloudflare.com/workers/versions-and-deployments/rollbacks/) and [Worker token scopes](https://developers.cloudflare.com/workers/authorization/workers/). Hosting credentials belong in the protected environment, never in source files, browser variables or build output.
+
 ## Cloudflare Workers Static Assets
 
 Use Node 22 and pnpm 9.15.9. From the repository root:
@@ -12,7 +28,7 @@ pnpm build
 pnpm dlx wrangler@4.148.0 deploy
 ```
 
-The deploy command requires an authorized Cloudflare login. `wrangler.jsonc` publishes `apps/playground/out/` at a dedicated origin. The export contains HTML, JavaScript, local fonts and licence notices. No Worker script, deployed API or application secrets are required. Security headers are generated into `out/_headers` from the same policy used by local development.
+The manual deploy command requires an authorized Cloudflare login. Pause automatic deployments and wait for any active deployment to finish before using it. `wrangler.jsonc` publishes `apps/playground/out/` at a dedicated origin. The export contains HTML, JavaScript, local fonts and licence notices. No Worker script, deployed API or application secrets are required. Security headers are generated into `out/_headers` from the same policy used by local development.
 
 The hosted default is the in-browser mock. Its Hono routes and in-memory rules are the same implementation used by the Node server. Requests stay in the browser, and browser state disappears on refresh. All signatures and receipts are fake.
 
