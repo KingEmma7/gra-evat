@@ -70,6 +70,7 @@ jobs:
       url: https://gra-evat.etagbor.workers.dev
     concurrency:
       group: cloudflare-production
+      queue: max
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
