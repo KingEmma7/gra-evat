@@ -3,6 +3,9 @@ import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promis
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { spawnSync } from 'node:child_process';
+import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
 const { Response, URL } = globalThis;
 import {
@@ -238,4 +241,83 @@ test('live verification checks the exact marker, generated security headers and 
     ),
     /Unknown paths must return 404/,
   );
+});
+
+test('publication removes generated Wrangler state but rejects preexisting or changed artifact files', async (t) => {
+  const f = await fixture(t);
+  const original = await prepareArtifact(f.root, f.destination, context);
+  const tool = path.join(f.root, 'wrangler-fixture.mjs');
+  await writeFile(
+    tool,
+    `import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+    import { createHash } from 'node:crypto';
+    if (process.env.GH_TOKEN) throw new Error('GitHub token reached the publication child');
+    mkdirSync('.wrangler/cache', { recursive: true });
+    writeFileSync('.wrangler/cache/state.json', '{}');
+    if (process.env.TAMPER_SITE) writeFileSync('site/index.html', 'changed');
+    if (process.env.EXTRA_FILE) writeFileSync('unexpected.txt', 'not verified');
+    if (process.env.TAMPER_CONFIG) writeFileSync('wrangler.json', '{}');
+    if (process.env.REWRITE_MANIFEST) {
+      writeFileSync('site/index.html', 'changed');
+      const release = JSON.parse(readFileSync('release.json', 'utf8'));
+      Object.assign(release.files.find(file => file.path === 'index.html'), { bytes: 7, sha256: createHash('sha256').update('changed').digest('hex') });
+      writeFileSync('release.json', JSON.stringify(release));
+    }
+  `,
+  );
+  const preload = path.join(f.root, 'github-fixture.mjs');
+  await writeFile(
+    preload,
+    `globalThis.fetch = async (url) => {
+    if (!url.startsWith('https://api.github.com/repos/KingEmma7/gra-evat/')) throw new Error('Unexpected request');
+    return new Response(JSON.stringify(url.includes('/pulls?') ? ${JSON.stringify([merged])} : ${JSON.stringify(head())}), { status: 200 });
+  };`,
+  );
+  const childEnv = {
+    ...process.env,
+    ...env,
+    GH_TOKEN: 'test-only',
+    CLOUDFLARE_API_TOKEN: 'not-a-real-token',
+    CLOUDFLARE_ACCOUNT_ID: 'fixture',
+    DEPLOY_ARTIFACT_DIR: f.destination,
+    WRANGLER_BIN: tool,
+    GITHUB_OUTPUT: path.join(f.root, 'output'),
+  };
+  const publish = (extra = {}) =>
+    spawnSync(
+      process.execPath,
+      ['--import', preload, fileURLToPath(new URL('./deployment.mjs', import.meta.url)), 'publish'],
+      { env: { ...childEnv, ...extra }, encoding: 'utf8' },
+    );
+  const result = publish();
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(await verifyArtifact(f.destination, context), original);
+  await mkdir(path.join(f.destination, '.wrangler'));
+  assert.notEqual(publish().status, 0, 'Preexisting state must fail before invoking Wrangler');
+  await rm(path.join(f.destination, '.wrangler'), { recursive: true });
+  assert.notEqual(
+    publish({ EXTRA_FILE: '1' }).status,
+    0,
+    'Unknown artifact-root files must remain fatal',
+  );
+  await rm(path.join(f.destination, 'unexpected.txt'));
+  const config = await readFile(path.join(f.destination, 'wrangler.json'));
+  assert.notEqual(
+    publish({ TAMPER_CONFIG: '1' }).status,
+    0,
+    'Changed configuration must remain fatal',
+  );
+  await writeFile(path.join(f.destination, 'wrangler.json'), config);
+  const index = await readFile(path.join(f.destination, 'site', 'index.html'));
+  assert.notEqual(
+    publish({ REWRITE_MANIFEST: '1' }).status,
+    0,
+    'Rewriting hashes must not authorize changed content',
+  );
+  await writeFile(path.join(f.destination, 'release.json'), JSON.stringify(original));
+  await writeFile(path.join(f.destination, 'site', 'index.html'), index);
+  const tamper = publish({ TAMPER_SITE: '1' });
+  assert.notEqual(tamper.status, 0);
+  assert.match(tamper.stderr, /files differ/);
+  assert.equal(await readFile(childEnv.GITHUB_OUTPUT, 'utf8'), 'deployed=true\n');
 });

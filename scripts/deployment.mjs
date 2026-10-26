@@ -5,7 +5,16 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 const { AbortSignal, fetch } = globalThis;
 import { createHash } from 'node:crypto';
-import { appendFile, copyFile, mkdir, readFile, readdir, lstat, writeFile } from 'node:fs/promises';
+import {
+  appendFile,
+  copyFile,
+  mkdir,
+  readFile,
+  readdir,
+  lstat,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
@@ -260,7 +269,7 @@ async function main() {
   assert.ok(directory, 'DEPLOY_ARTIFACT_DIR is required');
   const command = process.argv[2];
   if (command === 'prepare') return prepareArtifact(process.cwd(), directory, context);
-  await verifyArtifact(directory, context);
+  const manifest = await verifyArtifact(directory, context);
   if (command === 'publish') {
     const tool = process.env.WRANGLER_BIN;
     assert.ok(tool && path.isAbsolute(tool), 'An isolated absolute Wrangler path is required');
@@ -290,6 +299,10 @@ async function main() {
     );
     assert.ifError(result.error);
     assert.equal(result.status, 0, 'Cloudflare deployment failed');
+    // Wrangler creates local cache state beside its config after publication.
+    // Pre-publish verification excluded this path; all other changes stay fatal.
+    await rm(path.join(directory, '.wrangler'), { recursive: true, force: true });
+    assert.deepEqual(await verifyArtifact(directory, context), manifest);
     await appendFile(process.env.GITHUB_OUTPUT, 'deployed=true\n');
     return;
   }
