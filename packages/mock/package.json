@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@gra-evat/core": "workspace:*",
-    "hono": "4.13.13",
+    "hono": "4.13.16",
     "@hono/node-server": "2.1.5"
   }
 }
