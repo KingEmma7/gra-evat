@@ -1,0 +1,49 @@
+{
+  "scope": "Ink and teal refinement of the developer manual and in-browser simulator",
+  "registrySha256": "a5b697449b91c411f7dcc81a6ab340601c36f6141b3f58bd3c45763c5b70bc96",
+  "regions": [
+    {
+      "region": "Manual navigation",
+      "reviewed": ["animated-sidebar", "fluid-tabs"],
+      "selected": null,
+      "gap": "The approved sidebar uses an expanding icon rail and a different controller; this manual has persistent text anchors and no navigation state to expand. Fluid tabs switch panels rather than jump to document sections."
+    },
+    {
+      "region": "Simulator controls and response examples",
+      "reviewed": [
+        "metal-button",
+        "morph-status",
+        "morph-surface",
+        "file-tree",
+        "intro-disclosure"
+      ],
+      "selected": null,
+      "gap": "These components model decorative actions, save lifecycle, note editing, file disclosure or a tour. None exposes the existing invoice submission, copy, native disclosure and keyboard/focus APIs. Replacing these controls would add behavior unrelated to the color and identity preview."
+    },
+    {
+      "region": "Page imagery and branding",
+      "reviewed": [
+        "hover-preview",
+        "circular-gallery",
+        "card-swap",
+        "chroma-grid",
+        "text-scramble",
+        "peel-reveal",
+        "scroll-wipe-gallery",
+        "mood-tracker",
+        "morph-card",
+        "holdbutton",
+        "commandbutton",
+        "fur",
+        "blob",
+        "torph-bag",
+        "compare-slider",
+        "milestone-receipt",
+        "filtered-view-link"
+      ],
+      "selected": null,
+      "gap": "These approved components address galleries, animation, fictional fixtures, filtering or unrelated workflows, not a compact identity for a working reference manual."
+    }
+  ],
+  "verification": "Verify mock notices, links, input workflow, responsive layout and focus visibility on the actual application."
+}

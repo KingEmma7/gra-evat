@@ -1,5 +1,7 @@
 'use client';
 
+import { BrandMark } from './brand';
+
 export function ManualState({
   heading,
   message,
@@ -18,6 +20,7 @@ export function ManualState({
       </a>
       <aside className="manual-nav">
         <a className="wordmark" href="/">
+          <BrandMark />
           gra-evat
         </a>
         <p className="muted">Developer manual</p>
