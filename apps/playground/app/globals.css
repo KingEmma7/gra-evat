@@ -1,10 +1,12 @@
 @import 'tailwindcss';
 
 :root {
-  --background: #fafaf9;
-  --text: #111111;
-  --muted: #6b6b6b;
-  --border: #e5e5e3;
+  --background: #f4f9f7;
+  --text: #132e32;
+  --muted: #456360;
+  --border: #c8dcd5;
+  --accent: #086e62;
+  --surface: #ffffff;
   --sans: 'IBM Plex Sans', sans-serif;
   --mono: 'IBM Plex Mono', monospace;
 }
@@ -54,7 +56,7 @@ button:disabled {
   border-color: var(--border);
 }
 :focus-visible {
-  outline: 2px solid var(--text);
+  outline: 3px solid var(--accent);
   outline-offset: 4px;
 }
 ::selection {
@@ -148,12 +150,26 @@ pre {
   flex-direction: column;
   overflow: auto;
   border-right: 1px solid var(--border);
-  background: var(--background);
+  background: #102f33;
+  color: #f0faf7;
 }
 .wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
   font-size: 24px;
   font-weight: 600;
   text-decoration: none;
+}
+.brand-mark {
+  display: block;
+  width: 40px;
+  height: 40px;
+  flex: none;
+}
+.manual-nav .muted,
+.manual-nav .nav-footer {
+  color: #bbd8d0;
 }
 .manual-nav > p {
   margin-top: 8px;
@@ -166,12 +182,18 @@ pre {
   gap: 8px;
 }
 .manual-nav nav a {
-  padding: 8px 0;
+  padding: 8px 12px;
+  margin-left: -12px;
+  border-radius: 6px;
   text-decoration: none;
 }
 .manual-nav nav a:hover,
 .manual-nav nav a:focus-visible {
-  text-decoration: underline;
+  background: #214e4e;
+  text-decoration: none;
+}
+.manual-nav :focus-visible {
+  outline-color: #a2e3d3;
 }
 .nav-footer {
   margin-top: auto;
@@ -201,6 +223,21 @@ pre {
 .manual-section > h2:not(:first-child) {
   margin-top: 32px;
 }
+#quickstart h1 {
+  color: #0b504a;
+  font-size: clamp(36px, 4vw, 48px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+#quickstart > p:first-of-type {
+  max-width: 58ch;
+  font-size: 18px;
+  color: var(--muted);
+}
+#quickstart > h2 {
+  margin-top: 40px;
+}
 .section-heading {
   display: flex;
   align-items: center;
@@ -220,7 +257,7 @@ pre {
   min-height: 40px;
   padding: 8px 16px;
   border: 1px solid var(--muted);
-  background: var(--background);
+  background: var(--surface);
   color: var(--text);
   font-size: 14px;
   line-height: 1.6;
@@ -230,9 +267,13 @@ pre {
   border-color: var(--text);
 }
 .button-primary {
-  color: var(--background);
-  background: var(--text);
-  border-color: var(--text);
+  color: #ffffff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.button-primary:hover {
+  background: #07574e;
+  border-color: #07574e;
 }
 .button-primary:disabled {
   color: var(--background);
@@ -256,6 +297,8 @@ pre {
   margin-top: 32px;
   padding: 24px;
   border: 1px solid var(--border);
+  background: #e1f3ec;
+  border-radius: 8px;
 }
 .environment > div p {
   margin-top: 8px;
@@ -285,7 +328,7 @@ label select {
   padding: 8px;
   margin-top: 8px;
   color: var(--text);
-  background: var(--background);
+  background: var(--surface);
   border: 1px solid var(--muted);
   font-size: 16px;
 }
@@ -505,6 +548,7 @@ summary {
   min-width: 0;
   border: 1px solid var(--border);
   margin-bottom: 24px;
+  background: var(--surface);
 }
 .code-header {
   display: flex;
@@ -514,6 +558,7 @@ summary {
   padding: 8px 16px;
   min-height: 64px;
   border-bottom: 1px solid var(--border);
+  background: #e9f3ef;
 }
 .code-header > span,
 .code-header h4 {

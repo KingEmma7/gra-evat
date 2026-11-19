@@ -31,6 +31,7 @@ import {
 } from '../lib/draft';
 import { ApiReference } from './api-reference';
 import { CopyButton } from './copy-button';
+import { BrandMark } from './brand';
 
 type Totals = ReturnType<typeof calculateInvoice>;
 type Issued = {
@@ -400,6 +401,7 @@ export function Playground() {
       </a>
       <aside className="manual-nav">
         <a href="#quickstart" className="wordmark" aria-label="gra-evat home">
+          <BrandMark />
           gra-evat
         </a>
         <p className="muted">Developer manual</p>
